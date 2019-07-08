@@ -52,6 +52,12 @@ abs_percent <- function (x, ...) {
 
 Areas_to_include <- c("Eastbourne", "Hastings", "Lewes","Rother", "Wealden","Adur", "Arun", "Chichester", "Crawley", "Horsham", "Mid Sussex", "Worthing", "Brighton and Hove", "NHS Brighton and Hove CCG", "NHS Coastal West Sussex CCG", "NHS Crawley CCG","NHS Eastbourne, Hailsham and Seaford CCG", "NHS Hastings and Rother CCG","NHS High Weald Lewes Havens CCG", "NHS Horsham and Mid Sussex CCG", "West Sussex", "East Sussex", "England")
 
+Comparator_x <- "England"
+
+if(!(Comparator_x %in% Areas_to_include)){
+  print(paste0("The comparator you selected (", Comparator_x, ") is not in the list of areas for which we have data. Check spelling and/or if the data needs to be re-collated"))
+}
+
 if(!(file.exists("./Projecting-Health/Area_population_df.csv"))){
   print("Area_population_df is not available, it will be built using the 'Areas_to_include' object")
   source(paste0(github_repo_dir,"/Get data - mye and projections.R"))
@@ -89,9 +95,7 @@ if(exists("Areas_to_include") & file.exists("./Projecting-Health/Area_population
 
 Years_available <- unique(Area_population_df$Year)
 
-i = 2
-j = 1
-
+for(i in 1:length(Areas_to_include)){
 Area_x <- Areas_to_include[i]
 
 # We need to create a folder for each of our areas
@@ -99,9 +103,10 @@ if(!(file.exists(paste0("./Projecting-Health/Population_pyramid_image_files/",Ar
   dir.create(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x))
 }
 
-if(!(file.exists(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Numbers")))){
-  dir.create(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Numbers"))
-}
+# if(!(file.exists(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Numbers")))){
+#   dir.create(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Numbers"))
+# }
+
 if(!(file.exists(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Proportion")))){
   dir.create(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Proportion"))
 }
@@ -109,26 +114,21 @@ if(!(file.exists(paste0("./Projecting-Health/Population_pyramid_image_files/",Ar
 Area_pyramid_df <- Area_population_df %>% 
   filter(Area_Name == Area_x)
 
-Year_x <- Years_available[j]
-
-Comparator_x <- "England"
-
-if(!(Comparator_x %in% Areas_to_include)){
-  print(paste0("The comparator you selected (", Comparator_x, ") is not in the list of areas for which we have data. Check spelling and/or if the data needs to be re-collated"))
-}
-
-df_bars <- Area_pyramid_df %>% 
-  filter(Year == Year_x)
-
 # This looks across all years in the data to see what the maximum scale should be (so you can compare across years with a consistent scale)
-pyramid_breaks_min <- 0 - ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 1000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE), 100, f = ceiling), ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 2000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE), 200, f = ceiling), ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 4000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE),500, f = ceiling), ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 10000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE),1000, f = ceiling), round_any(max(Area_pyramid_df$Population, na.rm = TRUE), 5000, f = ceiling)))))
+pyramid_breaks_min <- 0 - ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 1000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE), 100, f = ceiling), ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 2000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE), 200, f = ceiling), ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 5000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE),500, f = ceiling), ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 10000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE),1000, f = ceiling), ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 15000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE), 2500, f = ceiling), round_any(max(Area_pyramid_df$Population, na.rm = TRUE), 5000, f = ceiling))))))
 
-pyramid_breaks_max <- ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 1000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE), 100, f = ceiling), ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 2000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE), 200, f = ceiling), ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 4000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE),500, f = ceiling), ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 10000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE),1000, f = ceiling), round_any(max(Area_pyramid_df$Population, na.rm = TRUE), 5000, f = ceiling)))))
+pyramid_breaks_max <- ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 1000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE), 100, f = ceiling), ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 2000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE), 200, f = ceiling), ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 5000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE),500, f = ceiling), ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 10000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE),1000, f = ceiling),ifelse(round_any(max(Area_pyramid_df$Population, na.rm = TRUE),50, f = ceiling) < 15000, round_any(max(Area_pyramid_df$Population, na.rm = TRUE), 2500, f = ceiling), round_any(max(Area_pyramid_df$Population, na.rm = TRUE), 5000, f = ceiling))))))
 
-pyramid_breaks_ticks <- ifelse(pyramid_breaks_max < 1000, 100, ifelse(pyramid_breaks_max < 2000, 200, ifelse(pyramid_breaks_max < 4000, 500, ifelse(pyramid_breaks_max < 10000, 1000, 5000))))
+pyramid_breaks_ticks <- ifelse(pyramid_breaks_max < 1000, 100, ifelse(pyramid_breaks_max < 2000, 200, ifelse(pyramid_breaks_max < 5000, 500, ifelse(pyramid_breaks_max < 10000, 1000, ifelse(pyramid_breaks_max < 15000, 2500, 5000)))))
 
-# within loop for years()
+x_value_for_year <- ifelse(pyramid_breaks_ticks == 100, pyramid_breaks_max - 100, ifelse(pyramid_breaks_ticks == 200, pyramid_breaks_max - 200, ifelse(pyramid_breaks_ticks == 500, pyramid_breaks_max - 250,  ifelse(pyramid_breaks_ticks == 1000, pyramid_breaks_max - 400,ifelse(pyramid_breaks_ticks == 15000, pyramid_breaks_max - 500, pyramid_breaks_max - 1000)))))
 
+for(j in 1:length(Years_available)){
+  Year_x <- Years_available[j]
+  
+  df_bars <- Area_pyramid_df %>% 
+    filter(Year == Year_x)
+  
 df_lines <- Area_population_df %>% 
   ungroup() %>% 
   filter(Area_Name == "England") %>% 
@@ -141,124 +141,161 @@ df_lines <- Area_population_df %>%
 combined_pyramid <- df_bars %>% 
   left_join(df_lines, by = c("Age_group", "Sex", "Year"))
 
-Pyramid_xabsolute_fig <- ggplot(data = combined_pyramid, aes(x = Age_group, y = Population, fill = Sex)) +
-  geom_bar(data = subset(combined_pyramid, Sex== "Female"),
-           stat = "identity") +
-  geom_bar(data = subset(combined_pyramid, Sex== "Male"),
-           stat = "identity",
-           position = "identity",
-           mapping = aes(y = -Population)) +
-  scale_fill_manual(values =  c("#ff6600", "#0099ff"), breaks = c("Males","Females")) +
-  coord_flip() +
-  pyramid_theme() + 
-  labs(title = paste0(Area_x),
-       caption = "Data source: Office for national statistics\nPopulation figures are rounded to the nearest 10.",
-       x = "",
-       y = "Population") +  
-  scale_y_continuous(breaks = seq(pyramid_breaks_min, pyramid_breaks_max, pyramid_breaks_ticks), limits = c(pyramid_breaks_min, pyramid_breaks_max), labels = abs_comma) + 
-  annotate("text", 
-           x = 19, 
-           y = pyramid_breaks_min, 
-           label = "Population aged 65+", 
-           size = 3, 
-           fontface = "bold", 
-           hjust = 0) +
-  annotate("text", 
-           x = 18, 
-           y = pyramid_breaks_min, 
-           label = format(round(sum(subset(combined_pyramid, Age_group %in% c("65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"), select = "Population")),-1), big.mark = ","),
-           size = 6, 
-           col = "red", 
-           fontface = "bold", 
-           hjust = 0) +
-  annotate("text", y = pyramid_breaks_min, 
-           x = 16.85, 
-           label = paste0("This is ", round(sum(subset(combined_pyramid, Age_group %in% c("65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"), select = "Population"))/sum(combined_pyramid$Population)*100,0), "% of the\ntotal population (",format(round(sum(combined_pyramid$Population),-1), big.mark = ","),")."), 
-           size = 3, 
-           hjust = 0) +
-  annotate("text", 
-           x = 15.5, 
-           y = pyramid_breaks_min, 
-           label = Year_x, 
-           size = 4.5, 
-           fontface = "bold", 
-           hjust = 0) +
-  annotate("text", 
-           x = 19, 
-           y = pyramid_breaks_ticks, 
-           label = "Females", 
-           size = 3, 
-           fontface = "bold", 
-           hjust = 0) +
-  annotate("text", 
-           x = 19, 
-           y = -pyramid_breaks_ticks, 
-           label = "Males", 
-           size = 3, 
-           fontface = "bold", 
-           hjust = 1) 
+# Pyramid_xabsolute_fig <- ggplot(data = combined_pyramid, aes(x = Age_group, y = Population, fill = Sex)) +
+#   geom_bar(data = subset(combined_pyramid, Sex== "Female"),
+#            stat = "identity") +
+#   geom_bar(data = subset(combined_pyramid, Sex== "Male"),
+#            stat = "identity",
+#            position = "identity",
+#            mapping = aes(y = -Population)) +
+#   scale_fill_manual(values =  c("#ff6600", "#0099ff"), breaks = c("Males","Females")) +
+#   coord_flip() +
+#   pyramid_theme() + 
+#   labs(title = paste0(Area_x),
+#        caption = "Data source: Office for national statistics\nPopulation figures are rounded to the nearest 10.",
+#        x = "",
+#        y = "Population") +  
+#   scale_y_continuous(breaks = seq(pyramid_breaks_min, pyramid_breaks_max, pyramid_breaks_ticks), limits = c(pyramid_breaks_min, pyramid_breaks_max), labels = abs_comma) + 
+#   annotate("text", 
+#            x = 19, 
+#            y = pyramid_breaks_min, 
+#            label = "Population aged 65+", 
+#            size = 3, 
+#            fontface = "bold", 
+#            hjust = 0) +
+#   annotate("text", 
+#            x = 18.2, 
+#            y = pyramid_breaks_min, 
+#            label = format(round(sum(subset(combined_pyramid, Age_group %in% c("65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"), select = "Population")),-1), big.mark = ","),
+#            size = 7, 
+#            col = "red", 
+#            fontface = "bold", 
+#            hjust = 0) +
+#   annotate("text", y = pyramid_breaks_min, 
+#            x = 16.85, 
+#            label = paste0("This is ", round(sum(subset(combined_pyramid, Age_group %in% c("65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"), select = "Population"))/sum(combined_pyramid$Population)*100,0), "% of the\ntotal population in\n", Year_x, " (",format(round(sum(combined_pyramid$Population),-1), big.mark = ","),")."), 
+#            size = 3, 
+#            hjust = 0) +
+#   annotate("text", 
+#            x = 19, 
+#            y = x_value_for_year, 
+#            label = Year_x, 
+#            size = 7, 
+#            fontface = "bold", 
+#            hjust = 1) +
+#   annotate("text", 
+#            x = 19, 
+#            y = pyramid_breaks_ticks*2, 
+#            label = "Females", 
+#            size = 3.5, 
+#            fontface = "bold", 
+#            hjust = 0) +
+#   annotate("text", 
+#            x = 19, 
+#            y = -pyramid_breaks_ticks*2, 
+#            label = "Males", 
+#            size = 3.5, 
+#            fontface = "bold", 
+#            hjust = 1) 
 
 Pyramid_xperc_fig <- ggplot(data = combined_pyramid, aes(x = Age_group, y = Proportion, fill = Sex)) +
     geom_bar(data = subset(combined_pyramid, Sex== "Female"),
              stat = "identity") +
     geom_line(data = subset(combined_pyramid, Sex== "Female"),
-              aes(x = as.numeric(Age_group), y = Comparator_proportion), colour="#4c4c4c", size = .3) +
+              aes(x = as.numeric(Age_group), 
+                  y = Comparator_proportion), 
+              colour="#4c4c4c", 
+              size = .35) +
     geom_bar(data = subset(combined_pyramid, Sex== "Male"),
              stat = "identity",
              position = "identity",
              mapping = aes(y = -Proportion)) +
-    geom_line(data = subset(combined_pyramid, Sex == "Male"), aes(x = as.numeric(Age_group), y =-Comparator_proportion), colour="#4c4c4c", size = .3) + 
-  scale_fill_manual(values =  c("#ff6600", "#0099ff"), breaks = c("Males","Females")) +
+    geom_line(data = subset(combined_pyramid, Sex == "Male"), 
+              aes(x = as.numeric(Age_group), y =-Comparator_proportion), 
+              colour="#4c4c4c", 
+              size = .3) + 
+  scale_fill_manual(values =  c("#ff6600", "#0099ff"), 
+                    breaks = c("Males","Females")) +
     coord_flip() +
     pyramid_theme() + 
     labs(title = paste0(Area_x),
          caption = "Data source: Office for national statistics\nPopulation figures are rounded to the nearest 10.",
          x = "",
          y = "Proportion") +  
-    scale_y_continuous(breaks = seq(-.1, .1, .02), limits = c(-.1,.1), labels = abs_percent) + 
+    scale_y_continuous(breaks = seq(-.12, .12, .02), 
+                       limits = c(-.12,.12), 
+                       labels = abs_percent) + 
     annotate("text", 
-             y = -.1, 
+             y = -.12, 
              x = 19, 
              label = "Population aged 65+", 
              size = 3, 
              fontface = "bold", 
              hjust = 0) +
     annotate("text", 
-             y = -.1, 
-             x = 18, 
+             y = -.12, 
+             x = 18.2, 
              label = format(round(sum(subset(combined_pyramid, Age_group %in% c("65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"), select = "Population")),-1), big.mark = ","), 
-             size = 6, 
+             size = 7, 
              col = "red", 
              fontface = "bold", 
              hjust = 0) +
     annotate("text", 
              x = 16.85, 
-             y = -.1, 
-             label = paste0("This is ", round(sum(subset(combined_pyramid, Age_group %in% c("65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"), select = "Population"))/sum(combined_pyramid$Population)*100,0), "% of the\ntotal population (",format(round(sum(combined_pyramid$Population),-1), big.mark = ","),")."),
+             y = -.12, 
+             label = paste0("This is ", round(sum(subset(combined_pyramid, Age_group %in% c("65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"), select = "Population"))/sum(combined_pyramid$Population)*100,0), "% of the\ntotal population in\n", Year_x, " (",format(round(sum(combined_pyramid$Population),-1), big.mark = ","),")."),
              size = 2.5, 
              hjust = 0) +
     annotate("text", 
-           x = 15.5, 
-           y = -.1, 
+           x = 19, 
+           y = .09, 
            label = Year_x, 
-           size = 4.5, 
+           size = 7, 
            fontface = "bold", 
            hjust = 0) +
     annotate("text", 
              x = 19, 
-             y = .025, 
+             y = .05, 
              label = "Females", 
-             size = 3, 
+             size = 3.5, 
              fontface = "bold", 
-             hjust = 0) +
+             hjust = 0,
+             vjust = 1) +
     annotate("text", 
              x = 19, 
-             y = -.025, 
+             y = -.05, 
              label = "Males", 
-             size = 3, 
+             size = 3.5, 
              fontface = "bold", 
-             hjust = 1)
+             hjust = 1,
+             vjust = 1) +
+  annotate("text", 
+           x = 1.5, 
+           y = .065, 
+           label = paste0("Lines represent the\npopulation in ",Comparator_x), 
+           size = 2.5, 
+           fontface = "italic",
+           hjust = 0)
 
-ggsave(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Numbers/Number_",Year_x,".png"), plot = Pyramid_xabsolute_fig, width = 6.5, height = 6, dpi = 250) 
+# ggsave(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Numbers/Number_",Year_x,".png"), plot = Pyramid_xabsolute_fig, width = 7.5, height = 6, dpi = 250) 
 
-ggsave(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Proportion/Proportion_",Year_x,".png"), plot = Pyramid_xperc_fig, width = 6.5, height = 6, dpi = 250) 
+ggsave(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Proportion/Proportion_",Year_x,".png"), plot = Pyramid_xperc_fig, width = 7.5, height = 6, dpi = 75) 
+
+}
+}
+
+# Image processing ####
+
+#install.packages('magick')
+library(magick)
+
+for(i in 1:length(Areas_to_include)){
+  Area_x <- Areas_to_include[i]
+list.files(path = paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Proportion/"), pattern = "*.png", full.names = T) %>% 
+  map(image_read) %>% # reads each path file
+  image_join() %>% # joins image
+  image_animate(fps=2) %>% # animates, can opt for number of loops
+  image_write(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"_2011_41.gif"),
+              quality = 50,
+              density = 100) # write to current dir
+}

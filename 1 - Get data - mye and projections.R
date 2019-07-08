@@ -21,7 +21,7 @@
 if(file.exists("./Projecting-Health") ==  FALSE){
   dir.create("./Projecting-Health")}
 
-github_repo_dir <- "~/Documents/Repositories/Projecting-Health"
+github_repo_dir <- "~/Documents/Repositories/Population-pyramids"
 
 # Choose areas ####
 

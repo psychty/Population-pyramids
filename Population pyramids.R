@@ -4,7 +4,7 @@ library(easypackages)
 libraries(c("readxl", "readr", "plyr", "dplyr", "ggplot2", "png", "tidyverse", "reshape2", "scales", "viridis", "rgdal", "officer", "flextable", "tmaptools", "lemon", "fingertipsR", "PHEindicatormethods", "xlsx"))
 
 # If you have downloaded/cloned the github repo for this project you will need to make sure the filepath is recorded in the object github_repo_dir
-github_repo_dir <- "~/Documents/Repositories/Projecting-Health"
+github_repo_dir <- "~/Documents/Repositories/Population-pyramids"
 
 # If you have run the other scripts you should have a folder in your working directory called 'Projecting-Health'. If you do not have one then it will be created
 if(!(file.exists(paste0("./Projecting-Health")))){
@@ -60,7 +60,7 @@ if(!(Comparator_x %in% Areas_to_include)){
 
 if(!(file.exists("./Projecting-Health/Area_population_df.csv"))){
   print("Area_population_df is not available, it will be built using the 'Areas_to_include' object")
-  source(paste0(github_repo_dir,"/Get data - mye and projections.R"))
+  source(paste0(github_repo_dir,"/1 - Get data - mye and projections.R"))
   
   if(file.exists("./Projecting-Health/Area_population_df.csv")){
     print("Area_population_df is now available.")
@@ -103,9 +103,9 @@ if(!(file.exists(paste0("./Projecting-Health/Population_pyramid_image_files/",Ar
   dir.create(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x))
 }
 
-# if(!(file.exists(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Numbers")))){
-#   dir.create(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Numbers"))
-# }
+if(!(file.exists(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Numbers")))){
+  dir.create(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Numbers"))
+}
 
 if(!(file.exists(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Proportion")))){
   dir.create(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Proportion"))
@@ -141,62 +141,62 @@ df_lines <- Area_population_df %>%
 combined_pyramid <- df_bars %>% 
   left_join(df_lines, by = c("Age_group", "Sex", "Year"))
 
-# Pyramid_xabsolute_fig <- ggplot(data = combined_pyramid, aes(x = Age_group, y = Population, fill = Sex)) +
-#   geom_bar(data = subset(combined_pyramid, Sex== "Female"),
-#            stat = "identity") +
-#   geom_bar(data = subset(combined_pyramid, Sex== "Male"),
-#            stat = "identity",
-#            position = "identity",
-#            mapping = aes(y = -Population)) +
-#   scale_fill_manual(values =  c("#ff6600", "#0099ff"), breaks = c("Males","Females")) +
-#   coord_flip() +
-#   pyramid_theme() + 
-#   labs(title = paste0(Area_x),
-#        caption = "Data source: Office for national statistics\nPopulation figures are rounded to the nearest 10.",
-#        x = "",
-#        y = "Population") +  
-#   scale_y_continuous(breaks = seq(pyramid_breaks_min, pyramid_breaks_max, pyramid_breaks_ticks), limits = c(pyramid_breaks_min, pyramid_breaks_max), labels = abs_comma) + 
-#   annotate("text", 
-#            x = 19, 
-#            y = pyramid_breaks_min, 
-#            label = "Population aged 65+", 
-#            size = 3, 
-#            fontface = "bold", 
-#            hjust = 0) +
-#   annotate("text", 
-#            x = 18.2, 
-#            y = pyramid_breaks_min, 
-#            label = format(round(sum(subset(combined_pyramid, Age_group %in% c("65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"), select = "Population")),-1), big.mark = ","),
-#            size = 7, 
-#            col = "red", 
-#            fontface = "bold", 
-#            hjust = 0) +
-#   annotate("text", y = pyramid_breaks_min, 
-#            x = 16.85, 
-#            label = paste0("This is ", round(sum(subset(combined_pyramid, Age_group %in% c("65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"), select = "Population"))/sum(combined_pyramid$Population)*100,0), "% of the\ntotal population in\n", Year_x, " (",format(round(sum(combined_pyramid$Population),-1), big.mark = ","),")."), 
-#            size = 3, 
-#            hjust = 0) +
-#   annotate("text", 
-#            x = 19, 
-#            y = x_value_for_year, 
-#            label = Year_x, 
-#            size = 7, 
-#            fontface = "bold", 
-#            hjust = 1) +
-#   annotate("text", 
-#            x = 19, 
-#            y = pyramid_breaks_ticks*2, 
-#            label = "Females", 
-#            size = 3.5, 
-#            fontface = "bold", 
-#            hjust = 0) +
-#   annotate("text", 
-#            x = 19, 
-#            y = -pyramid_breaks_ticks*2, 
-#            label = "Males", 
-#            size = 3.5, 
-#            fontface = "bold", 
-#            hjust = 1) 
+Pyramid_xabsolute_fig <- ggplot(data = combined_pyramid, aes(x = Age_group, y = Population, fill = Sex)) +
+  geom_bar(data = subset(combined_pyramid, Sex== "Female"),
+           stat = "identity") +
+  geom_bar(data = subset(combined_pyramid, Sex== "Male"),
+           stat = "identity",
+           position = "identity",
+           mapping = aes(y = -Population)) +
+  scale_fill_manual(values =  c("#ff6600", "#0099ff"), breaks = c("Males","Females")) +
+  coord_flip() +
+  pyramid_theme() +
+  labs(title = paste0(Area_x),
+       caption = "Data source: Office for national statistics\nPopulation figures are rounded to the nearest 10.",
+       x = "",
+       y = "Population") +
+  scale_y_continuous(breaks = seq(pyramid_breaks_min, pyramid_breaks_max, pyramid_breaks_ticks), limits = c(pyramid_breaks_min, pyramid_breaks_max), labels = abs_comma) +
+  annotate("text",
+           x = 19,
+           y = pyramid_breaks_min,
+           label = "Population aged 65+",
+           size = 3,
+           fontface = "bold",
+           hjust = 0) +
+  annotate("text",
+           x = 18.2,
+           y = pyramid_breaks_min,
+           label = format(round(sum(subset(combined_pyramid, Age_group %in% c("65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"), select = "Population")),-1), big.mark = ","),
+           size = 7,
+           col = "red",
+           fontface = "bold",
+           hjust = 0) +
+  annotate("text", y = pyramid_breaks_min,
+           x = 16.85,
+           label = paste0("This is ", round(sum(subset(combined_pyramid, Age_group %in% c("65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"), select = "Population"))/sum(combined_pyramid$Population)*100,0), "% of the\ntotal population in\n", Year_x, " (",format(round(sum(combined_pyramid$Population),-1), big.mark = ","),")."),
+           size = 3,
+           hjust = 0) +
+  annotate("text",
+           x = 19,
+           y = x_value_for_year,
+           label = Year_x,
+           size = 7,
+           fontface = "bold",
+           hjust = 1) +
+  annotate("text",
+           x = 19,
+           y = pyramid_breaks_ticks*2,
+           label = "Females",
+           size = 3.5,
+           fontface = "bold",
+           hjust = 0) +
+  annotate("text",
+           x = 19,
+           y = -pyramid_breaks_ticks*2,
+           label = "Males",
+           size = 3.5,
+           fontface = "bold",
+           hjust = 1)
 
 Pyramid_xperc_fig <- ggplot(data = combined_pyramid, aes(x = Age_group, y = Proportion, fill = Sex)) +
     geom_bar(data = subset(combined_pyramid, Sex== "Female"),
@@ -277,7 +277,7 @@ Pyramid_xperc_fig <- ggplot(data = combined_pyramid, aes(x = Age_group, y = Prop
            fontface = "italic",
            hjust = 0)
 
-# ggsave(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Numbers/Number_",Year_x,".png"), plot = Pyramid_xabsolute_fig, width = 7.5, height = 6, dpi = 250) 
+ggsave(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Numbers/Number_",Year_x,".png"), plot = Pyramid_xabsolute_fig, width = 7.5, height = 6, dpi = 75)
 
 ggsave(paste0("./Projecting-Health/Population_pyramid_image_files/",Area_x,"/Proportion/Proportion_",Year_x,".png"), plot = Pyramid_xperc_fig, width = 7.5, height = 6, dpi = 75) 
 

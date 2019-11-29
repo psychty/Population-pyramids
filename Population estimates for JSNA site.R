@@ -320,34 +320,58 @@ Areas_data_file %>%
 download.file('https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fpopulationandmigration%2fpopulationprojections%2fdatasets%2ftableofstatepensionagefactorspensionsact%2f2016based/pensionmatrixfor2016npp.xls',paste0(github_repo_dir, '/Pension_matrix_16_based.xls'), mode = 'wb')
 
 Female_pension_matrix_16_based <- read_excel("/Users/richtyler/Documents/Repositories/Population-pyramids/Pension_matrix_16_based.xls", sheet = "Females 2016 NPPs", skip = 4, n_max = 9) %>% 
-  rename('Year' = '...1') %>% 
-  mutate(Sex = 'Female') %>% 
+  rename('Age' = '...1') %>% 
+  mutate(Sex = 'Females') %>% 
   gather(Year, SPA_factor, `2010`:`2046`, factor_key = TRUE)
 
 Male_pension_matrix_16_based <- read_excel("/Users/richtyler/Documents/Repositories/Population-pyramids/Pension_matrix_16_based.xls", sheet = "Males 2016 NPPs", skip = 4, n_max = 9) %>% 
-  rename('Year' = '...1') %>% 
-  mutate(Sex = 'Male') %>% 
+  rename('Age' = '...1') %>% 
+  mutate(Sex = 'Males') %>% 
   gather(Year, SPA_factor, `2010`:`2046`, factor_key = TRUE)
 
 Pension_matrix <- Female_pension_matrix_16_based %>% 
-  bind_rows(Male_pension_matrix_16_based)
+  bind_rows(Male_pension_matrix_16_based) %>% 
+  mutate(Age = as.numeric(gsub(" and over", "", Age))) %>%  
+  mutate(Working_factor = 1 - SPA_factor) %>% 
+  mutate(Year = as.numeric(as.character(Year)))
 
 rm(Female_pension_matrix_16_based, Male_pension_matrix_16_based)
 
 # Join to SYOA datasets
+OADR_1 <- ONS_projections_SYOA %>% 
+  select(-AREA_CODE) %>% 
+  gather(key = Year, value = 'Population', `2016`:`2041`, factor_key = FALSE) %>% 
+  filter(!(Year %in% c(2016,2017,2018))) %>% 
+  mutate(Estimate = 'Projection')
 
-OADR <- Areas_data_file %>% 
-  mutate(Dependent = ifelse(Age_group %in% c('0-15 years', '65+ years'), 'Dependent', 'Working_age')) %>% 
-  select(Dependent, `2008`, `2018`, `2028`) %>% 
-  group_by(Dependent) %>% 
-  summarise(`2008` = sum(`2008`),
-            `2018` = sum(`2018`),
-            `2028` = sum(`2028`)) %>% 
+OADR_2<- NOMIS_mye_df %>% 
+  select(-AREA_CODE) %>% 
+  gather(key = Year, value = 'Population', `1991`:`2018`, factor_key = FALSE) %>% 
+  filter(Year >= 2010) %>% 
+  mutate(Estimate = 'Mid year estimate')
+
+OADR_1 %>% 
+  bind_rows(OADR_2) %>% 
+  rename(Sex = SEX,
+         Age = AGE_GROUP,
+         Area = AREA_NAME) %>% 
+  mutate(Age = as.numeric(gsub(" and over", "", Age))) %>% 
+  mutate(Year = as.numeric(Year)) %>% 
+  mutate(Sex = capwords(Sex, strict = TRUE)) %>% 
+  left_join(Pension_matrix, by = c('Age', 'Sex', 'Year')) %>% 
+  mutate(SPA_factor = ifelse(is.na(SPA_factor), 0, SPA_factor)) %>% 
+  mutate(SPA_factor = ifelse(Age > 68, 1, SPA_factor)) %>% 
+  mutate(Working_factor = ifelse(Age >= 16 & Age < 60, 1, Working_factor)) %>% 
+  mutate(Working_factor = ifelse(is.na(Working_factor), 0, Working_factor)) %>% 
+  mutate(Number_SPA = Population * SPA_factor,
+         Number_Workers = Population * Working_factor) %>% 
+  group_by(Area, Year, Estimate) %>% 
+  summarise(Number_SPA = sum(Number_SPA),
+            Number_Workers = sum(Number_Workers)) %>% 
   ungroup() %>% 
-  gather(key = 'Year', value = 'Population', `2008`:`2028`) %>% 
-  spread(Dependent, Population) %>% 
-  mutate(Dependency_ratio_per_1000 = Dependent / Working_age * 1000)
-
+  mutate(OADR = Number_SPA / Number_Workers * 1000) %>% 
+  toJSON() %>% 
+  write_lines(paste0(github_repo_dir,'/area_oadr_df.json'))
 
 
 # However this measure may become less useful as more people work up to and beyond State Pension age; alternative measures that include economic activity may provide a more meaningful picture of economic dependency.

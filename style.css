@@ -1,0 +1,138 @@
+*{
+  font-family: 'Open Sans', sans-serif;
+  /* font-size: .85rem; */
+  }
+
+p {
+  font-size: .9rem;
+}
+
+* {-webkit-font-smoothing: antialiased;}
+
+div {
+    display: inline-block;
+}
+
+svg {
+  background-color: #FFF;
+}
+
+.header {
+ margin: auto;
+ width: calc(100% - 40px);
+ text-align: center;
+ margin-top: 20px;
+ margin-left: 20px;
+ margin-right: 20px;
+ margin-bottom: 30px;
+}
+
+.left-sidebar {
+  float: left;
+  width: calc(20% - 40px);
+  top: 0;
+
+  margin-left: 20px;
+  margin-right: 20px;
+  position: sticky;
+}
+
+.main {
+  width: calc(80% - 40px);
+  top: 0;
+  margin-left: 20px;
+  margin-right: 20px;
+  float: right;
+}
+
+.content {
+  float: none;
+  width: calc(65% - 10px);
+  margin-right: 10px;
+}
+
+.right-sidebar {
+  float: right;
+  width: calc(35% - 40px);
+  color: #444;
+  margin-left: 20px;
+  margin-right: 20px;
+  top: 0;
+}
+
+/* Fonts */
+
+h1 {
+    font-size: 1.8rem;
+    /* font-family: "Garamond", serif; */
+    font-weight: bold;
+    color: #256cb2;
+    /* font-family: "Verdana"; */
+}
+
+h2 {
+    font-size: 1.2rem;
+    /* font-family: "Garamond", serif; */
+    font-weight: bold;
+    color: #256cb2;
+  }
+
+h3 {
+  font-size: 1.2rem;
+  /* font-family: "Garamond", serif; */
+  font-weight: bold;
+  color: #000;
+    }
+
+p.side {
+  font-size: .8rem;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+p.side_important {
+  text-align: justify;
+  font-weight: bold;
+  color: red;
+  text-justify: inter-word;
+}
+
+p {
+  font-size: 1rem;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+a {
+  color: #cc0052;
+}
+
+/* Tables */
+table {
+		width: 100%;
+		border-collapse: collapse;
+
+    font-size: .9rem;
+    color: #000000;
+	}
+
+  tr:nth-of-type(odd) {
+		background: #d6ebff;
+	}
+
+	th {
+    background-color: #ffffff;
+		color: #256cb2;
+    font-size: 1.2rem;
+	}
+
+	td, th {
+    padding-top: 2px;
+		padding-right: 5px;
+    padding-left: 1px;
+    padding-bottom: 2px;
+    font-size: .9rem;
+		border: 1px solid #ffffff;
+    vertical-align: top;
+		text-align: left;
+	}

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Population estimates - West Sussex JSNA</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="wrapper">
+<div class = 'header'>
+<h1>Population estimates and projections - an introduction</h1>
+</div>
+
+<div class="row" id = 'section-intro'>
+
+<div class = "content">
+
+<p>Annual estimates of the population living in West Sussex are provided by the Office for National Statistics. The most accurate estimates are drawn from the census, which takes place every 10 years in the UK. Population estimates are then updated every year, mostly using information on births, deaths, and migration, until the next census to produce mid-year population estimates (MYEs). National and local authority estimates are usually updated in June each year by the Office for National Statistics for the previous year (e.g. mid-2018 estimates were released in June 2019), with small area population estimates released later in the year, usually in November.</p>
+
+<p>In addition to understanding the number of people living in the county, it is also important to consider the number of people using health services such as GPs, as these are important populations for public health interventions such as NHS Health Checks, NHS Stop Smoking Services in primary care, and for health protection interventions such as flu vaccines. People do not always go to a GP practice close to where they live and may instead use services closer to where they work. Fortunately, GP practices regularly publish the number of patients by age and sex who are registered to a particular practice.</p>
+
+<p>Trends from recent mid year estimates are also used to project what the population could look like in the next 30 years if those trends continued. It is, of course, likely that unexpected events or policies will have an impact on future population changes and projections cannot take these into account. One uncertainty will be the impact of the UK's withdrawal from the European Union which will influence migration of populations.</p>
+
+</div>
+
+<div class = 'right-sidebar'>
+  <p class = 'side'>The population estimates refer to the usual residence of a population, it is not a count of how many people are expected to be in an area at a given time (e.g. it does not estimate the number of people who come into an area for work or for tourism). For most people, defining where they usually live is quite straightforward although specific rules are applied to estimate numbers of people in the armed forces, and also the number of students, prisoners, and international migrants.</p>
+
+  <p class = 'side'>Higher education students and schoolchildren studying away from home are counted as residents at their term-time address, members of the armed forces are usually resident at the address where they spend most of their time and prisoners are usually resident in the prison estate if they have a sentence of six months or more. International migrants are usually resident if they intend to stay in England and Wales for more than 12 months.<p>
+</div>
+</div>
+
+<div class = 'left-sidebar'>
+  <p>Jump to a section</p>
+</div>
+
+<div class="main">
+
+<div class="row" id = 'latest-estimates' >
+<div class="content">
+
+<h1>Population estimates 2018</h1>
+<p id = 'wsx_intro_string'></p>
+
+<div id = 'population_18_table'></div>
+
+<p>GP registered populations</p>
+
+</div>
+
+<div class = 'right-sidebar'>
+  <p class = 'side'>An internal migrant is defined as someone who moves home from one geographical area to another. This may be between local authorities, regions or countries within the UK. Unlike with international migration, there is no internationally agreed definition.</p>
+</div>
+</div>
+
+<div class="row" id = 'maps' >
+    <div class="content">
+
+<h2>MAPS</h2>
+
+<p>In West Sussex, in 2016, there was estimated to be 424 people per square kilometre. There is variation across the county with Chichester having as few as 150 residents per square kilometre and Worthing having more than twenty times this at 3,291 residents per square kilometre. The population density of West Sussex districts has been fairly stable over the last 15 years.</p>
+
+</div>
+<div class = 'right-sidebar'>
+  <p class = 'side'>The mid year population estimates show us how many people live per square kilometre, as a measure of population density (how many people share a unit of space). </p>
+  </div>
+</div>
+
+<div class="row" id = 'age-structure' >
+    <div class="content">
+
+<h1>Ageing in West Sussex</h1>
+<p>In West Sussex, the median age in 2016 was 44.7 years, up from 44.5 years in 2015 and 42.4 years in 2006.</p>
+
+<p>The figure below shows that for most districts, the median age has increased over the last decade although there is more fluctuation in Crawley district. Moreover, Crawley has consistently maintained a lower median age for its population compared to the rest of the county. In 2016, the median age for residents in Crawley was 36.6 years compared to Arun which had a median age of 48.9 years.</p>
+
+<p>The West Sussex population by age band and sex compared to England is presented in the population pyramid below. The figure shows that West Sussex has a considerably older age profile compared to England with higher proportion of over 65s and relatively fewer residents aged 15-39.</p>
+
+<div id = 'pyramid_1_datavis'></div>
+
+<h1>OADR</h1>
+
+</div>
+
+<div class = 'right-sidebar'>
+  <p class = 'side'>The median age provides a useful summary measure of the age structure of the population as it shows that exactly half the population is below and the other half is above the median age.</p>
+</div>
+
+</div>
+
+<div class = 'row' id = 'migration'>
+<div class = 'content'>
+<h1>Internal Migration</h1>
+<p>The chart below shows the net internal migration flow for West Sussex in the year ending June 2016 by age group. It shows that over the 12 months leading to June 2016, more people settled in the county than left for nearly all age groups apart from 15-19 and 20-24 year olds. These young people may be those who leave the family home for the first time to go to university.</p>
+
+<p>The pattern of net internal migration is varied among the districts of West Sussex (shown below), with Crawley showing the inverse of the pattern seen at county level, with 20-24 year olds being the only age group to have a net increase in population.</p>
+
+</div>
+
+<div class = 'right-sidebar'>
+  <p class = 'side'>Migration info.</p>
+</div>
+</div>
+
+
+</div>
+</div>
+
+<script src="https://d3plus.org/js/d3plus.v2.0.0-alpha.22.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
+<script src="https://d3js.org/d3-format.v1.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src = 'population_change.js'></script></div>
+
+
+</body>
+</html>

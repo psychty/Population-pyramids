@@ -293,16 +293,37 @@ Areas_data_file <- Areas_estimates_file %>%
   arrange(Year) %>% 
   mutate(Annual_change = Population - lag(Population)) %>% 
   mutate(Annual_change = replace_na(Annual_change, 0)) %>% 
+  ungroup() %>% 
+  group_by(Area_Name, Sex, Age_band_type, Year) %>% 
+  mutate(Percentage = Population / sum(Population, na.rm = TRUE)) %>% 
   ungroup()
 
 Areas_data_file %>% 
   write.csv(paste0(github_repo_dir,'/Areas_data_file.csv'))
   
-Areas_data_file %>% 
+five_1 <- Areas_data_file %>% 
   filter(Age_band_type == '5 years') %>% 
-  select(-c(Area_Code, Area_Type, Age_band_type, Data_type)) %>% 
+  select(Area_Name, Sex, Age_group, Year, Population) %>% 
+  mutate(Sex = paste0(Sex, '_Population')) %>% 
+  spread(Sex, Population)
+
+five_2 <- Areas_data_file %>% 
+  filter(Age_band_type == '5 years') %>% 
+  select(Area_Name, Sex, Age_group, Year, Annual_change) %>% 
+  mutate(Sex = paste0(Sex, '_annual_change')) %>% 
+  spread(Sex, Annual_change)
+
+five_3 <- Areas_data_file %>% 
+  filter(Age_band_type == '5 years') %>% 
+  select(Area_Name, Sex, Age_group, Year, Percentage) %>% 
+  mutate(Sex = paste0(Sex, '_Percentage')) %>% 
+  spread(Sex, Percentage)
+
+five_1 %>% 
+  left_join(five_2, by = c('Area_Name', 'Year', 'Age_group')) %>% 
+  left_join(five_3, by = c('Area_Name', 'Year', 'Age_group')) %>% 
   toJSON() %>% 
-  write_lines(paste0(github_repo_dir,'/area_population_quinary_df.json'))
+  write_lines(paste0(github_repo_dir,'/area_population_quinary_df_v2.json'))
 
 Areas_data_file %>% 
   filter(Age_band_type == 'broad years') %>% 

@@ -136,3 +136,14 @@ table {
     vertical-align: top;
 		text-align: left;
 	}
+
+.tooltip_pyramid_bars {
+  max-width: 240px;
+  padding-top: 1px;
+  padding-left: 3px;
+  padding-right: 3px;
+  background: #ffffff;
+  color: #000000;
+  border-radius: 5px;
+  border: 1px solid #000;
+}

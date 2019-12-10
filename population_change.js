@@ -85,12 +85,12 @@ var exampleData = [
 
 console.log(data)
 // GET THE TOTAL POPULATION SIZE AND CREATE A FUNCTION FOR RETURNING THE PERCENTAGE
-var totalPopulation = d3.sum(exampleData, function(d) { return d.male + d.female; });
+var totalPopulation = d3.sum(data, function(d) { return d.Female_Population + d.Male_Population; });
 
 // find the maximum data value on either side
 var maxPopulation = Math.max(
-  d3.max(exampleData, function(d) { return d.male; }),
-  d3.max(exampleData, function(d) { return d.female; })
+  d3.max(data, function(d) { return d.Male_Population; }),
+  d3.max(data, function(d) { return d.Female_Population; })
 );
 
 // plotting region for each pyramid and Where should the pyramids start (males on the left)
@@ -121,8 +121,39 @@ var pyramid_scale_bars = d3.scaleLinear()
   .domain([0,maxPopulation])
   .range([0, pyramid_plot_width]);
 
+var tooltip_pyramid_1_male = d3.select("#pyramid_1_datavis")
+    .append("div")
+    .style("opacity", 0)
+    .attr("class", "tooltip_pyramid_bars")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "1px")
+    .style("border-radius", "5px")
+    .style("padding", "10px")
+
+var showTooltip_p1_male = function(d, i) {
+
+tooltip_pyramid_1_male
+    // .html("<h3>" + d.data.Age_group + '</h3><p>The estimated number of as a result of ' + sub_cause_groupName.toLowerCase() + ' in West Sussex in 2017 among both males and females aged ' + d.data.Age + ' was <font color = "#1e4b7a"><b>' + d3.format(",.0f")(subgroupValue) + '</b></font>.</p><p>This is <font color = "#1e4b7a"><b>' + d3.format(",.0%")(subgroupValue/d.data.Total_in_age) + '</b></font> of the total ' + label_key(d.data.Measure) + ' in West Sussex among those aged '+ d.data.Age +' (<font color = "#1e4b7a"><b>' + d3.format(",.0f")(d.data.Total_in_age) + '</b></font>)</p>')
+    .html("<h2>" + d.Age_group + '</h2><p class = "side">The estimated number of males aged ' + d.Age_group + ' in ' + d.Year + ' was ' + d3.format(",.0f")(d.Male_Population) + '. This is ' + d3.format('.0%')(d.Male_Percentage) + ' of the population of males in ' + d.Area_Name + '.</p><p class = "side">The total population in ' + d.Area_Name + ' in ' + d.Year + ' is ' + d3.format(',.0f')(totalPopulation) + '</p>')
+    .style("opacity", 1)
+    .style("top", (event.pageY - 10) + "px")
+    .style("left", (event.pageX + 10) + "px")
+    .style("visibility", "visible")
+    }
+
+var mouseleave_p1 = function(d) {
+// var subgroup_key = d3.select(this.parentNode).datum().index
+
+tooltip_pyramid_1_male
+.style("visibility", "hidden")
+
+  }
+
 // .tickFormat(d3.format('.0%'))
-ages = exampleData.map(function(d) { return d.group; })
+ages = data.map(function(d) { return d.Age_group; })
 
 // Y axis scale
 var y_pyramid_1 = d3.scaleBand()
@@ -141,25 +172,27 @@ var yAxis_top_risks = svg_pyramid_1
 
 svg_pyramid_1
 .selectAll("myRect")
-.data(exampleData)
+.data(data)
 .enter()
 .append("rect")
 .attr("x", female_zero)
-.attr("y", function(d) { return y_pyramid_1(d.group); })
-.attr("width", function(d) { return pyramid_scale_bars(d.female); })
+.attr("y", function(d) { return y_pyramid_1(d.Age_group); })
+.attr("width", function(d) { return pyramid_scale_bars(d.Female_Population); })
 .attr("height", y_pyramid_1.bandwidth())
-.attr("fill", "#f49b2f")
+.attr("fill", "#0099ff")
 
 svg_pyramid_1
 .selectAll("myRect")
-.data(exampleData)
+.data(data)
 .enter()
 .append("rect")
-.attr("x", function(d) { return male_zero - pyramid_scale_bars(d.male); })
-.attr("y", function(d) { return y_pyramid_1(d.group); })
-.attr("width", function(d) { return pyramid_scale_bars(d.male); })
+.attr("x", function(d) { return male_zero - pyramid_scale_bars(d.Male_Population); })
+.attr("y", function(d) { return y_pyramid_1(d.Age_group); })
+.attr("width", function(d) { return pyramid_scale_bars(d.Male_Population); })
 .attr("height", y_pyramid_1.bandwidth())
-.attr("fill", "#193d82")
+.attr("fill", "#ff6600")
+.on("mousemove", showTooltip_p1_male)
+.on('mouseout', mouseleave_p1)
 
 // svg_pyramid_1
 // .selectAll("myRect")

@@ -4,6 +4,8 @@ var width = document.getElementById("content_size").offsetWidth;
 
 var height_pyramid = 500;
 
+var age_levels = ["0-4 years", "5-9 years", "10-14 years", "15-19 years", "20-24 years", "25-29 years", "30-34 years", "35-39 years", "40-44 years", "45-49 years", "50-54 years", "55-59 years", "60-64 years", "65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"]
+
 // margins
 var margin = {top: 30,
               right: 30,
@@ -39,10 +41,191 @@ var change_switch_key = d3.scaleOrdinal()
     .domain([nat_change, internal_net, international_net])
     .range(['more births than deaths', 'more people moving into the area from elsewhere in the UK', 'more people moving into the area from other countries'])
 
-d3.select("#wsx_intro_string")
+d3.select("#wsx_intro_string_1")
     .data(wsx_coc)
     .text(function(d) {
-        return 'In ' +d.Year + ', ' + d3.format(',.0f')(d.population) + ' people were estimated to be resident in ' + d.Area_name + '. This was ' + d3.format(',.0f')(d.pop_change) + ' more than in the previous year (' + d3.format(',.0f')(d.population - d.pop_change) + '), an increase of approximately ' + d3.format('0.1f')(d.pop_change / (d.population - d.pop_change) * 100) + '%. There were ' + d3.format(',.0f')(d.births) + ' births and ' + d3.format(',.0f')(d.deaths) + ' deaths and net internal migration (from/to elsewhere in the UK) was ' + d3.format(',.0f')(d.internal_net) + ' (' + d3.format(',.0f')(d.internal_out) + ' people moving out and ' + d3.format(',.0f')(d.internal_in) + ' people moving in). Net international migration in ' + d.Area_name + ', in ' + d.Year + ', was ' + d3.format(',.0f')(d.international_net) + ' (' + d3.format(',.0f')(d.international_out) + ' people moving out and ' + d3.format(',.0f')(d.international_in) + ' people moving in). This means that population increase resulted largely from ' + change_switch_key(top_cause_change) + '.'});
+        return 'In ' +d.Year + ', ' + d3.format(',.4r')(d.population) + ' people were estimated to be resident in ' + d.Area_name + '. There were ' + d3.format(',.0f')(d.births) + ' births and ' + d3.format(',.0f')(d.deaths) + ' deaths and net internal migration (from/to elsewhere in the UK) was ' + d3.format(',.0f')(d.internal_net) + ' (' + d3.format(',.0f')(d.internal_out) + ' people moving out and ' + d3.format(',.0f')(d.internal_in) + ' people moving in). Net international migration in ' + d.Area_name + ', in ' + d.Year + ', was ' + d3.format(',.0f')(d.international_net) + ' (' + d3.format(',.0f')(d.international_out) + ' people moving out and ' + d3.format(',.0f')(d.international_in) + ' people moving in).'});
+
+d3.select("#wsx_intro_string_2")
+    .data(wsx_coc)
+    .text(function(d) {
+        return 'The total population in 2017 was ' + d3.format(',.4r')(d.population - d.pop_change) + ' which means between 2017 and 2018 the overall population increased by ' + d3.format(',.3r')(d.pop_change) + ', an increase of approximately ' + d3.format('0.1f')(d.pop_change / (d.population - d.pop_change) * 100) + '%. The population increase resulted largely from ' + change_switch_key(top_cause_change) + '.'});
+
+// Population 2018 data
+var request = new XMLHttpRequest();
+    request.open("GET", "./wsx_2018_pop.json", false);
+    request.send(null);
+
+var pop_2018 = JSON.parse(request.responseText); // parse the fetched json data into a variable
+
+pop_2018.sort(function(a,b) {
+    return age_levels.indexOf( a.Age) > age_levels.indexOf( b.Age);
+});
+
+// GET THE TOTAL POPULATION SIZE AND CREATE A FUNCTION FOR RETURNING THE PERCENTAGE
+var total_GP_pop = d3.sum(pop_2018, function(d) { return d.Total_GP; });
+var total_MYE_pop = d3.sum(pop_2018, function(d) { return d.Total_MYE; });
+
+d3.select('#wsx_gp_2018_string')
+  .data(pop_2018)
+  .text(function(d) {
+    return 'At the time of the latest mid year estimate, there were ' + d3.format(',.0f')(total_GP_pop) + ' patients registered to GP practices in West Sussex. This means around ' + d3.format(',.2r')(total_GP_pop - total_MYE_pop) + ' more people were registered to primary care services than were estimated to be living in the county. This has implications for planning some services which are provided in primary care (such as NHS Health Checks and NHS Stop Smoking Services). Some residents outside of the county may be registered to practices in the county, and some residents of West Sussex may use services outside of the county, perhaps choosing to use services near places of work. Limited data on where GP practice patients reside are available publically and will be explored in more detail in the section "primary care populations" below'});
+
+///////////////////
+// Top ten table //
+///////////////////
+
+// Create a function for tabulating the data
+function tabulate_pop(data, columns) {
+var table = d3.select('#population_18_table')
+    .append('table')
+var thead = table
+    .append('thead')
+var tbody = table
+    .append('tbody');
+
+// append the header row
+thead
+.append('tr')
+.selectAll('th')
+.data(columns).enter()
+.append('th')
+.text(function (column) {
+      return column;
+          });
+
+// create a row for each object in the data
+var rows = tbody.selectAll('tr')
+  .data(data)
+  .enter()
+  .append('tr');
+
+// create a cell in each row for each column
+var cells = rows.selectAll('td')
+  .data(function (row) {
+    return columns.map(function (column) {
+    return {column: column, value: row[column]};
+      });
+      })
+  .enter()
+  .append('td')
+  .text(function(d,i) {
+    if(i >= 1) return d3.format(",.0f")(d.value);
+               return d.value; })
+    return table;
+    }
+
+var topTable = tabulate_pop(pop_2018, ['Age', 'Total (MYE)', 'Total (GP register)', 'Females (MYE)', 'Females (GP register)', 'Males (MYE)', 'Males (GP register)']);
+
+// components of change districts in wsx
+
+
+// Population 2018 data
+var request = new XMLHttpRequest();
+    request.open("GET", "./area_components_of_change_df.json", false);
+    request.send(null);
+
+var coc_2018 = JSON.parse(request.responseText);
+
+// .sort(function(a,b) {
+    // return age_levels.indexOf( a.Age_group) > age_levels.indexOf( b.Age_group );
+// });
+
+
+// Create a function for tabulating the data
+function tabulate_coc(data, columns) {
+var table = d3.select('#population_coc_18_table')
+    .append('table')
+var thead = table
+    .append('thead')
+var tbody = table
+    .append('tbody');
+
+// append the header row
+thead
+.append('tr')
+.selectAll('th')
+.data(columns).enter()
+.append('th')
+.text(function (column) {
+      return column;
+          });
+
+// create a row for each object in the data
+var rows = tbody.selectAll('tr')
+  .data(data)
+  .enter()
+  .append('tr');
+
+// create a cell in each row for each column
+var cells = rows.selectAll('td')
+  .data(function (row) {
+    return columns.map(function (column) {
+    return {column: column, value: row[column]};
+      });
+      })
+  .enter()
+  .append('td')
+  .text(function(d) {
+       return d.value;})
+    return table;
+    }
+
+var topTable = tabulate_coc(coc_2018, ["Area", "Births per 1,000 population", "Deaths per 1,000 population", "Internal in per 1,000 population", "Internal out per 1,000 population","International in per 1,000 population", "International out per 1,000 population", "Population in 2018" ,"Population change since 2017", "2018 people per sq. km", "Median age (2018)"]);
+
+
+// Population change 2018 2028 2038 data
+var request = new XMLHttpRequest();
+    request.open("GET", "./area_change_over_time_df.json", false);
+    request.send(null);
+
+var cot_20182838 = JSON.parse(request.responseText);
+
+
+
+
+
+// Create a function for tabulating the data
+function tabulate_cot(data, columns) {
+var table = d3.select('#population_18_28_38_table')
+    .append('table')
+var thead = table
+    .append('thead')
+var tbody = table
+    .append('tbody');
+
+// append the header row
+thead
+.append('tr')
+.selectAll('th')
+.data(columns).enter()
+.append('th')
+.text(function (column) {
+      return column;
+          });
+
+// create a row for each object in the data
+var rows = tbody.selectAll('tr')
+  .data(data)
+  .enter()
+  .append('tr');
+
+// create a cell in each row for each column
+var cells = rows.selectAll('td')
+  .data(function (row) {
+    return columns.map(function (column) {
+    return {column: column, value: row[column]};
+      });
+      })
+  .enter()
+  .append('td')
+  .text(function(d) {
+       return d.value;})
+    return table;
+    }
+
+var topTable = tabulate_cot(cot_20182838, ["Area", "2018", "2028", "Change 2018-2028", "2038", "Change 2018-2038"]);
+
 
 // Population pyramid data
 var request = new XMLHttpRequest();
@@ -55,6 +238,40 @@ var data = json_pyramid.filter(function(d){
     return d.Year === '2018' &
            d.Area_Name === 'West Sussex'})
 
+// List of years in the dataset
+var years_pyramid_1 = d3.map(json_pyramid, function (d) {
+     return (d.Year)
+     })
+   .keys()
+
+// We need to create a dropdown button for the user to choose which area to be displayed on the figure.
+d3.select("#selectYearsP1Button")
+    .selectAll('myOptions')
+    .data(years_pyramid_1)
+    .enter()
+    .append('option')
+    .text(function (d) {
+        return d; }) // text to appear in the menu - this does not have to be as it is in the data (you can concatenate other values).
+    .attr("value", function (d) {
+        return d; }) // corresponding value returned by the button
+
+// List of years in the dataset
+var areas_pyramid_1 = d3.map(json_pyramid, function (d) {
+   return (d.Area_Name)
+   })
+   .keys()
+
+// We need to create a dropdown button for the user to choose which area to be displayed on the figure.
+d3.select("#selectAreasP1Button")
+  .selectAll('myOptions')
+  .data(areas_pyramid_1)
+  .enter()
+  .append('option')
+  .text(function (d) {
+        return d; }) // text to appear in the menu - this does not have to be as it is in the data (you can concatenate other values).
+  .attr("value", function (d) {
+        return d; }) // corresponding value returned by the button
+
 // append the svg object to the body of the page
 var svg_pyramid_1 = d3.select("#pyramid_1_datavis")
 .append("svg")
@@ -64,26 +281,8 @@ var svg_pyramid_1 = d3.select("#pyramid_1_datavis")
 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 // space for y axis
-margin.middle = 60;
+margin.middle = 80;
 
-// Once you have these points set up, things become much simpler, since you can simply plug these values into an svg transform to translate the objects you create to those positions.
-
-// some contrived data
-var exampleData = [
-  {group: '0-9', male: 10, female: 10},
-  {group: '10-19', male: 14, female: 15},
-  {group: '20-29', male: 15, female: 18},
-  {group: '30-39', male: 18, female: 18},
-  {group: '40-49', male: 21, female: 22},
-  {group: '50-59', male: 19, female: 24},
-  {group: '60-69', male: 15, female: 14},
-  {group: '70-79', male: 8, female: 1},
-  {group: '80-89', male: 4, female: 5},
-  {group: '90-99', male: 2, female: 3},
-  {group: '100-109', male: 18, female: 1},
-];
-
-console.log(data)
 // GET THE TOTAL POPULATION SIZE AND CREATE A FUNCTION FOR RETURNING THE PERCENTAGE
 var totalPopulation = d3.sum(data, function(d) { return d.Female_Population + d.Male_Population; });
 
@@ -133,16 +332,38 @@ var tooltip_pyramid_1_male = d3.select("#pyramid_1_datavis")
     .style("border-radius", "5px")
     .style("padding", "10px")
 
+var tooltip_pyramid_1_female = d3.select("#pyramid_1_datavis")
+  .append("div")
+  .style("opacity", 0)
+  .attr("class", "tooltip_pyramid_bars")
+  .style("position", "absolute")
+  .style("z-index", "10")
+  .style("background-color", "white")
+  .style("border", "solid")
+  .style("border-width", "1px")
+  .style("border-radius", "5px")
+  .style("padding", "10px")
+
+
 var showTooltip_p1_male = function(d, i) {
 
 tooltip_pyramid_1_male
-    // .html("<h3>" + d.data.Age_group + '</h3><p>The estimated number of as a result of ' + sub_cause_groupName.toLowerCase() + ' in West Sussex in 2017 among both males and females aged ' + d.data.Age + ' was <font color = "#1e4b7a"><b>' + d3.format(",.0f")(subgroupValue) + '</b></font>.</p><p>This is <font color = "#1e4b7a"><b>' + d3.format(",.0%")(subgroupValue/d.data.Total_in_age) + '</b></font> of the total ' + label_key(d.data.Measure) + ' in West Sussex among those aged '+ d.data.Age +' (<font color = "#1e4b7a"><b>' + d3.format(",.0f")(d.data.Total_in_age) + '</b></font>)</p>')
-    .html("<h2>" + d.Age_group + '</h2><p class = "side">The estimated number of males aged ' + d.Age_group + ' in ' + d.Year + ' was ' + d3.format(",.0f")(d.Male_Population) + '. This is ' + d3.format('.0%')(d.Male_Percentage) + ' of the population of males in ' + d.Area_Name + '.</p><p class = "side">The total population in ' + d.Area_Name + ' in ' + d.Year + ' is ' + d3.format(',.0f')(totalPopulation) + '</p>')
-    .style("opacity", 1)
-    .style("top", (event.pageY - 10) + "px")
-    .style("left", (event.pageX + 10) + "px")
-    .style("visibility", "visible")
+  .html("<h2>" + d.Age_group + '</h2><p class = "side">The estimated number of males aged ' + d.Age_group + ' in ' + d.Year + ' was ' + d3.format(",.0f")(d.Male_Population) + '. This is ' + d3.format('.1%')(d.Male_Percentage) + ' of the population of males in ' + d.Area_Name + '.</p><p class = "side">The total population in ' + d.Area_Name + ' in ' + d.Year + ' is ' + d3.format(',.0f')(totalPopulation) + '</p>')
+  .style("opacity", 1)
+  .style("top", (event.pageY - 10) + "px")
+  .style("left", (event.pageX + 10) + "px")
+  .style("visibility", "visible")
     }
+
+var showTooltip_p1_female = function(d, i) {
+
+tooltip_pyramid_1_female
+      .html("<h2>" + d.Age_group + '</h2><p class = "side">The estimated number of females aged ' + d.Age_group + ' in ' + d.Year + ' was ' + d3.format(",.0f")(d.Female_Population) + '. This is ' + d3.format('.1%')(d.Female_Percentage) + ' of the population of females in ' + d.Area_Name + '.</p><p class = "side">The total population in ' + d.Area_Name + ' in ' + d.Year + ' is ' + d3.format(',.0f')(totalPopulation) + '</p>')
+      .style("opacity", 1)
+      .style("top", (event.pageY - 10) + "px")
+      .style("left", (event.pageX + 10) + "px")
+      .style("visibility", "visible")
+        }
 
 var mouseleave_p1 = function(d) {
 // var subgroup_key = d3.select(this.parentNode).datum().index
@@ -150,14 +371,17 @@ var mouseleave_p1 = function(d) {
 tooltip_pyramid_1_male
 .style("visibility", "hidden")
 
+tooltip_pyramid_1_female
+.style("visibility", "hidden")
+
   }
 
 // .tickFormat(d3.format('.0%'))
-ages = data.map(function(d) { return d.Age_group; })
+// ages = data.map(function(d) { return d.Age_group; })
 
 // Y axis scale
 var y_pyramid_1 = d3.scaleBand()
-.domain(ages)
+.domain(age_levels)
 .range([height_pyramid, 0])
 .padding([0.2]);
 
@@ -180,6 +404,8 @@ svg_pyramid_1
 .attr("width", function(d) { return pyramid_scale_bars(d.Female_Population); })
 .attr("height", y_pyramid_1.bandwidth())
 .attr("fill", "#0099ff")
+.on("mousemove", showTooltip_p1_female)
+.on('mouseout', mouseleave_p1)
 
 svg_pyramid_1
 .selectAll("myRect")
@@ -194,13 +420,50 @@ svg_pyramid_1
 .on("mousemove", showTooltip_p1_male)
 .on('mouseout', mouseleave_p1)
 
-// svg_pyramid_1
-// .selectAll("myRect")
-// .data(exampleData)
-// .enter()
-// .append("rect")
-// .attr("x", male_zero)
-// .attr("y", function(d) { return y_pyramid_1(d.group); })
-// .attr("width", function(d) { return - x_pyramid_scale_female(d.female); })
-// .attr("height", y_pyramid_1.bandwidth())
-// .attr("fill", "#f49b2f")
+// Median age data
+var request = new XMLHttpRequest();
+    request.open("GET", "./area_median_age_df.json", false);
+    request.send(null);
+
+var median_age = JSON.parse(request.responseText);
+
+// Create a function for tabulating the data
+function tabulate_median(data, columns) {
+var table = d3.select('#population_median_age_table')
+    .append('table')
+var thead = table
+    .append('thead')
+var tbody = table
+    .append('tbody');
+
+// append the header row
+thead
+.append('tr')
+.selectAll('th')
+.data(columns).enter()
+.append('th')
+.text(function (column) {
+      return column;
+          });
+
+// create a row for each object in the data
+var rows = tbody.selectAll('tr')
+  .data(data)
+  .enter()
+  .append('tr');
+
+// create a cell in each row for each column
+var cells = rows.selectAll('td')
+  .data(function (row) {
+    return columns.map(function (column) {
+    return {column: column, value: row[column]};
+      });
+      })
+  .enter()
+  .append('td')
+  .text(function(d) {
+       return d.value;})
+    return table;
+    }
+
+var topTable = tabulate_median(median_age, ["Area", "Median age (2003)", "Median age (2008)", "Median age (2013)", "Median age (2018)"]);

@@ -92,7 +92,8 @@ p.side {
 
 p.side_important {
   text-align: justify;
-  font-weight: bold;
+    font-size: .8rem;
+  /* font-weight: bold; */
   color: red;
   text-justify: inter-word;
 }
@@ -146,4 +147,23 @@ table {
   color: #000000;
   border-radius: 5px;
   border: 1px solid #000;
+}
+
+.menu_list {
+  display: block;
+  padding: 0.5em 0.5em;
+  border: none;
+  color: #000000;
+  background: #ffffff;
+  cursor: pointer;
+  text-align: left;
+  font-size: .8rem;
+  font-family: inherit;
+  margin: 0 0 1px;
+  border-left: 8px solid #ccc;
+  position: relative;
+}
+
+.menu_list:hover{
+  background: #ccc;
 }

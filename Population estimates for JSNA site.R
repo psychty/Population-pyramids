@@ -77,6 +77,8 @@ ONS_projection_1941_quinary <- ONS_projections_SYOA %>%
   mutate(Data_type = "Projected - ONS",
          Age_band_type = "5 years")
 
+unique(ONS_projection_1941_quinary$`Age group`)
+
 ONS_projection_1941_10_year <- ONS_projections_SYOA %>% 
   filter(AGE_GROUP != "All ages") %>% 
   mutate(Age = as.numeric(gsub(" and over", "", AGE_GROUP))) %>% 
@@ -305,6 +307,7 @@ five_1 <- Areas_data_file %>%
   filter(Age_band_type == '5 years') %>% 
   select(Area_Name, Sex, Age_group, Year, Population) %>% 
   mutate(Sex = paste0(Sex, '_Population')) %>% 
+  mutate(Population = round(Population, -2)) %>% 
   spread(Sex, Population)
 
 five_2 <- Areas_data_file %>% 
@@ -337,6 +340,33 @@ Areas_data_file %>%
   summarise(Population = sum(Population)) %>% 
   toJSON() %>% 
   write_lines(paste0(github_repo_dir,'/area_population_totals_df.json'))
+
+
+cot <- Areas_data_file %>% 
+  filter(Age_band_type == 'broad years') %>% 
+  group_by(Area_Name, Year) %>% 
+  summarise(Population = sum(Population)) %>% 
+  ungroup() %>% 
+  filter(Year %in% c(2018, 2028, 2038)) %>% 
+  spread(Year, Population) %>% 
+  rename(Area = Area_Name) %>% 
+  filter(Area %in% c('Adur', 'Arun', 'Chichester', 'Crawley', 'Horsham', 'Mid Sussex', 'Worthing', 'West Sussex')) %>% 
+  mutate(`Change 2018-2028` = paste0(ifelse(`2028` - `2018` > 0, '+', '-'), format(round(`2028` - `2018`, -2), big.mark = ',', trim = TRUE), ' (',  round((`2028`-`2018`)/`2018` * 100, 1), '%)')) %>%   mutate(`Change 2018-2038` = paste0(ifelse(`2038` - `2018` > 0, '+', '-'), format(round(`2038` - `2018`,  -2), big.mark = ',', trim = TRUE), ' (',  round((`2038`-`2018`)/`2018` * 100, 1), '%)')) %>% 
+  mutate(`2018` = format(round(`2018`, -2), big.mark = ',', trim = TRUE)) %>% 
+  mutate(`2028` = format(round(`2028`, -2), big.mark = ',', trim = TRUE)) %>% 
+  mutate(`2038` = format(round(`2038`, -2), big.mark = ',', trim = TRUE)) 
+
+wsx_cot <- cot %>% 
+  filter(Area == 'West Sussex')
+
+cot %>% 
+  filter(Area != 'West Sussex') %>% 
+  mutate(Area = factor(Area, levels = c('Adur', 'Arun', 'Chichester', 'Crawley', 'Horsham', 'Mid Sussex', 'Worthing'))) %>% 
+  arrange(Area) %>% 
+  add_row() %>% 
+  bind_rows(wsx_cot) %>% 
+  toJSON() %>% 
+  write_lines(paste0(github_repo_dir,'/area_change_over_time_df.json'))
 
 # Components of change ####
 
@@ -387,8 +417,69 @@ WSx_component_change <- Component_change %>%
   mutate(Area_name = 'West Sussex') %>% 
   mutate(pop_change = population - lag(population))
 
+Component_change__wsx_18 <- WSx_component_change %>% 
+  filter(Year == '2018') %>% 
+  mutate(`Births per 1,000 population` = paste0(round(births_per_1000, 1), ' (', format(births, big.mark = ',', trim = TRUE), ')')) %>% 
+  mutate(`Deaths per 1,000 population` = paste0(round(deaths_per_1000, 1), ' (', format(deaths, big.mark = ',', trim = TRUE), ')')) %>% 
+  mutate(`Internal in per 1,000 population` = paste0(round(internal_in_per_1000, 1), ' (', format(internal_in, big.mark = ',', trim = TRUE), ')')) %>% 
+  mutate(`Internal out per 1,000 population` = paste0(round(internal_out_per_1000, 1), ' (', format(internal_out, big.mark = ',', trim = TRUE), ')')) %>% 
+  mutate(`International in per 1,000 population` = paste0(round(international_in_per_1000, 1), ' (', format(international_in, big.mark = ',', trim = TRUE), ')')) %>% 
+  mutate(`International out per 1,000 population` = paste0(round(international_out_per_1000, 1), ' (', format(international_out, big.mark = ',', trim = TRUE), ')')) %>% 
+  mutate(`Population in 2018` = format(round(population, -2), big.mark = ',', trim = TRUE)) %>% 
+  mutate(`Population change since 2017` = paste0(ifelse(pop_change > 0, '+', '-'), format(round(pop_change, -2), big.mark = ',', trim = TRUE))) %>% 
+  select(Area_name, `Births per 1,000 population`,`Deaths per 1,000 population`,`Internal in per 1,000 population`,`Internal out per 1,000 population`,`International in per 1,000 population`,`International out per 1,000 population`, `Population in 2018`,`Population change since 2017`)
+
+# Population density
+
+# download.file('https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fpopulationandmigration%2fpopulationestimates%2fdatasets%2fpopulationestimatesforukenglandandwalesscotlandandnorthernireland%2fmid20182019laboundaries/ukmidyearestimates20182019ladcodes.xls', paste0(github_repo_dir, '/pop_density.xlsx'), mode = 'wb')
+
+pop_density <- read_csv(paste0(github_repo_dir, '/pop_density.csv')) %>% 
+  select(Name, `2018 people per sq. km`) %>% 
+  rename(Area = Name) %>% 
+  filter(Area %in% c('Adur', 'Arun', 'Chichester', 'Crawley', 'Horsham', 'Mid Sussex', 'Worthing', 'West Sussex'))
+
+median_age <- read_csv(paste0(github_repo_dir, '/median_age.csv')) %>% 
+  select(Name, `Mid-2018`) %>% 
+  rename('Median age (2018)' = `Mid-2018`,
+         Area = Name) %>% 
+  filter(Area %in% c('Adur', 'Arun', 'Chichester', 'Crawley', 'Horsham', 'Mid Sussex', 'Worthing', 'West Sussex'))
+
+median_1 <- read_csv(paste0(github_repo_dir, '/median_age.csv')) %>%
+  select(Name, `Mid-2003`, `Mid-2008`, `Mid-2013`, `Mid-2018`) %>% 
+  rename('Median age (2003)' = `Mid-2003`,
+         'Median age (2008)' = `Mid-2008`,
+         'Median age (2013)' = `Mid-2013`,
+         'Median age (2018)' = `Mid-2018`,
+         Area = Name) %>% 
+  filter(Area %in% c('Adur', 'Arun', 'Chichester', 'Crawley', 'Horsham', 'Mid Sussex', 'Worthing', 'West Sussex'))
+  
+median_2 <- median_1 %>% 
+  filter(Area == 'West Sussex')
+  
+median_1 %>% 
+  filter(Area != 'West Sussex') %>% 
+  add_row() %>% 
+  bind_rows(median_2) %>% 
+  toJSON() %>% 
+  write_lines(paste0(github_repo_dir,'/area_median_age_df.json'))
+
 Component_change %>% 
-  bind_rows(WSx_component_change) %>% 
+  filter(Year == '2018') %>% 
+  mutate(`Births per 1,000 population` = paste0(round(births_per_1000, 1), ' (', format(births, big.mark = ',', trim = TRUE), ')')) %>% 
+  mutate(`Deaths per 1,000 population` = paste0(round(deaths_per_1000, 1), ' (', format(deaths, big.mark = ',', trim = TRUE), ')')) %>% 
+  mutate(`Internal in per 1,000 population` = paste0(round(internal_in_per_1000, 1), ' (', format(internal_in, big.mark = ',', trim = TRUE), ')')) %>% 
+  mutate(`Internal out per 1,000 population` = paste0(round(internal_out_per_1000, 1), ' (', format(internal_out, big.mark = ',', trim = TRUE), ')')) %>% 
+  mutate(`International in per 1,000 population` = paste0(round(international_in_per_1000, 1), ' (', format(international_in, big.mark = ',', trim = TRUE), ')')) %>% 
+  mutate(`International out per 1,000 population` = paste0(round(international_out_per_1000, 1), ' (', format(international_out, big.mark = ',', trim = TRUE), ')')) %>% 
+  mutate(`Population in 2018` = format(round(population, -2), big.mark = ',', trim = TRUE)) %>% 
+  mutate(`Population change since 2017` = paste0(ifelse(pop_change > 0, '+', '-'), format(round(pop_change, -2), big.mark = ',', trim = TRUE))) %>% 
+  select(Area_name, `Births per 1,000 population`,`Deaths per 1,000 population`,`Internal in per 1,000 population`,`Internal out per 1,000 population`,`International in per 1,000 population`,`International out per 1,000 population`, `Population in 2018`,`Population change since 2017`) %>% 
+  add_row() %>% 
+  bind_rows(Component_change__wsx_18) %>% 
+  rename(Area = Area_name) %>% 
+  left_join(pop_density, by = 'Area') %>% 
+  mutate(`2018 people per sq. km` = gsub('NA', NA, format(`2018 people per sq. km`, big.mark = ',', trim = TRUE))) %>% 
+  left_join(median_age, by = 'Area') %>% 
   toJSON() %>% 
   write_lines(paste0(github_repo_dir,'/area_components_of_change_df.json'))
 
@@ -468,11 +559,19 @@ Component_change %>%
 
 # Small area ####
 
-download.file('https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fpopulationandmigration%2fpopulationestimates%2fdatasets%2flowersuperoutputareamidyearpopulationestimates%2fmid2018sape21dt1a/sape21dt1amid2018on2019lalsoasyoaestimatesformatted.zip', paste0(github_repo_dir, '/lsoa_2018.zip'), mode = 'wb')
+#download.file('https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fpopulationandmigration%2fpopulationestimates%2fdatasets%2flowersuperoutputareamidyearpopulationestimates%2fmid2018sape21dt1a/sape21dt1amid2018on2019lalsoasyoaestimatesformatted.zip', paste0(github_repo_dir, '/lsoa_2018.zip'), mode = 'wb')
+#unzip('/Users/richtyler/Documents/Repositories/Population-pyramids/lsoa_2018.zip', exdir = github_repo_dir)
+              
+lsoa_lookup <- read_csv('https://opendata.arcgis.com/datasets/9f4c270148014f20bf24abff9a7aef62_0.csv') %>% 
+  filter(UTLA17NM == 'West Sussex')
 
-unzip('/Users/richtyler/Documents/Repositories/Population-pyramids/lsoa_2018.zip', exdir = github_repo_dir)
-              
-              
+SAPE <- read_excel("/Users/richtyler/Documents/Repositories/Population-pyramids/SAPE21DT1a-mid-2018-on-2019-LA-lsoa-syoa-estimates-formatted.xlsx", sheet = "Mid-2018 Persons", skip = 3) %>% 
+  filter(`Area Codes` %in% lsoa_lookup$LSOA11CD) %>% 
+  select(-`LA (2019 boundaries)`)
+
+
+
+
 # https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fpopulationandmigration%2fpopulationestimates%2fdatasets%2flowersuperoutputareapopulationdensity%2fmid2018sape21dt11/sape21dt11mid2018lsoapopulationdensity.zip
 
 
@@ -482,7 +581,7 @@ unzip('/Users/richtyler/Documents/Repositories/Population-pyramids/lsoa_2018.zip
 
 # To calculate the population estimated to be of state pension age by year we must use the state pension age matrix.
 
-download.file('https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fpopulationandmigration%2fpopulationprojections%2fdatasets%2ftableofstatepensionagefactorspensionsact%2f2016based/pensionmatrixfor2016npp.xls',paste0(github_repo_dir, '/Pension_matrix_16_based.xls'), mode = 'wb')
+#download.file('https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fpopulationandmigration%2fpopulationprojections%2fdatasets%2ftableofstatepensionagefactorspensionsact%2f2016based/pensionmatrixfor2016npp.xls',paste0(github_repo_dir, '/Pension_matrix_16_based.xls'), mode = 'wb')
 
 Female_pension_matrix_16_based <- read_excel("/Users/richtyler/Documents/Repositories/Population-pyramids/Pension_matrix_16_based.xls", sheet = "Females 2016 NPPs", skip = 4, n_max = 9) %>% 
   rename('Age' = '...1') %>% 
@@ -553,9 +652,10 @@ OADR_1 %>%
 # # https://files.digital.nhs.uk/FC/086DD7/gp-reg-pat-prac-lsoa-male-female-jul-19.zip
 
 GP_mapping <- read_csv('https://files.digital.nhs.uk/BA/206EF1/gp-reg-pat-prac-map.csv') %>% 
-  select(PRACTICE_CODE, PRACTICE_NAME) %>% 
+  select(PRACTICE_CODE, PRACTICE_NAME, CCG_NAME) %>% 
   rename(Code = PRACTICE_CODE,
-         Name = PRACTICE_NAME) %>% 
+         Name = PRACTICE_NAME,
+         CCG_Name = CCG_NAME) %>% 
   mutate(Name = capwords(Name, strict = T)) %>% 
   mutate(Name = gsub(' And ', ' and ', Name))
 
@@ -564,7 +664,11 @@ GP_num_2018 <- read_csv('https://files.digital.nhs.uk/0E/C2DE2B/gp-reg-pat-prac-
   rename(Code = CODE,
          Patients = NUMBER_OF_PATIENTS) %>% 
   left_join(GP_mapping, by = 'Code') %>%
-  select(Code, Name, Patients)
+  select(Code, Name, CCG_Name, Patients)
+
+CCG_num_2018 <- GP_num_2018 %>% 
+  group_by(CCG_Name) %>% 
+  summarise(Patients = sum(Patients, na.rm = TRUE))
 
 GP_num_2018_fsyoa <- read_csv('https://files.digital.nhs.uk/18/02778A/gp-reg-pat-prac-sing-age-female.csv') %>% 
   rename(Sex = SEX,
@@ -594,9 +698,88 @@ GP_num_2018_syoa <- GP_num_2018_fsyoa %>%
   summarise(Patients = sum(Patients, na.rm = TRUE)) %>% 
   mutate(Sex = 'All')
 
-download.file('https://files.digital.nhs.uk/D2/1D35F3/gp-reg-pat-prac-lsoa-all-females-males-jul-18.zip', paste0(github_repo_dir, '/gp_lsoa_f.zip'), mode = 'wb')
-unzip('/Users/richtyler/Documents/Repositories/Population-pyramids/gp_lsoa_f.zip', exdir = github_repo_dir)
+GP_quin_2018 <-  GP_num_2018_fsyoa %>% 
+  bind_rows(GP_num_2018_msyoa) %>% 
+  group_by(Code, Name, Age, Sex) %>% 
+  summarise(Patients = sum(Patients, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(Age = gsub("95\\+", "95", Age)) %>% 
+  mutate(Age = as.numeric(Age)) %>% 
+  mutate(Age_group = ifelse(Age <= 4, "0-4 years", ifelse(Age <= 9, "5-9 years", ifelse(Age <= 14, "10-14 years", ifelse(Age <= 19, "15-19 years", ifelse(Age <= 24, "20-24 years", ifelse(Age <= 29, "25-29 years",ifelse(Age <= 34, "30-34 years", ifelse(Age <= 39, "35-39 years",ifelse(Age <= 44, "40-44 years", ifelse(Age <= 49, "45-49 years",ifelse(Age <= 54, "50-54 years", ifelse(Age <= 59, "55-59 years",ifelse(Age <= 64, "60-64 years", ifelse(Age <= 69, "65-69 years",ifelse(Age <= 74, "70-74 years", ifelse(Age <= 79, "75-79 years",ifelse(Age <= 84, "80-84 years", ifelse(Age <= 89, "85-89 years", "90+ years"))))))))))))))))))) %>% 
+  group_by(Code, Name, Age_group, Sex) %>% 
+  summarise(Patients = sum(Patients, na.rm = TRUE)) %>% 
+  ungroup() 
 
-GP_lsoa_f_2018 <- read_csv(paste0(github_repo_dir, '/gp-reg-pat-prac-lsoa-female.csv'))
-GP_lsoa_m_2018 <- read_csv(paste0(github_repo_dir, '/gp-reg-pat-prac-lsoa-male.csv'))
-GP_lsoa_b_2018 <- read_csv(paste0(github_repo_dir, '/gp-reg-pat-prac-lsoa-all.csv'))
+WSx_GP <- GP_quin_2018 %>% 
+  group_by(Age_group, Sex) %>% 
+  summarise(Patients = sum(Patients, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(Name = 'West Sussex') %>% 
+  spread(Sex, Patients)
+
+CCG_GP <- GP_quin_2018 %>% 
+  left_join(GP_mapping, by = 'Code') %>% 
+  group_by(CCG_Name, Age_group, Sex) %>% 
+  summarise(Patients = sum(Patients, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  rename(Name = CCG_Name) %>% 
+  spread(Sex, Patients)
+
+WSx_GP <- WSx_GP %>% 
+  rename(Female_Population = Female,
+         Male_Population = Male) %>% 
+  mutate(Female_Percentage = Female_Population / sum(Female_Population, na.rm = TRUE)) %>% 
+  mutate(Male_Percentage = Male_Population / sum(Male_Population, na.rm = TRUE))
+
+WSx_res <- Areas_data_file %>% 
+  filter(Age_band_type == '5 years',
+         Area_Name == 'West Sussex',
+         Year == '2018') %>% 
+  select(Area_Name, Sex, Age_group, Year, Population) %>% 
+  mutate(Sex = paste0(Sex, '_MYE')) %>% 
+  # mutate(Population = round(Population, -2)) %>% 
+  spread(Sex, Population)
+
+WSx_GP %>% 
+  rename(Female_GP = Female_Population,
+         Male_GP = Male_Population) %>% 
+  left_join(WSx_res, by = 'Age_group') %>% 
+  mutate(Total_MYE = Female_MYE + Male_MYE,
+         Total_GP = Female_GP + Male_GP) %>% 
+  select(Age_group, Total_MYE, Total_GP, Female_MYE, Male_MYE, Female_GP, Male_GP) %>% 
+  mutate(Total_MYE = round(Total_MYE, -2),
+         Female_MYE = round(Female_MYE, -2),
+         Male_MYE = round(Male_MYE, -2)) %>% 
+  rename(Age = Age_group,
+         `Total (MYE)` = Total_MYE, 
+         `Total (GP register)` = Total_GP,
+         `Females (MYE)` = Female_MYE, 
+         `Males (MYE)` = Male_MYE,
+         `Females (GP register)` = Female_GP, 
+         `Males (GP register)` = Male_GP) %>% 
+  toJSON() %>% 
+  write_lines(paste0(github_repo_dir,'/wsx_2018_pop.json'))
+
+# GP_quin_2018 <- GP_quin_2018 %>% 
+#   spread(Sex, Patients) %>% 
+#   bind_Rows(WSx_GP)
+# 
+# # PCN stuff should probably be used for more up to date GP practice lists.
+# 
+# download.file('https://digital.nhs.uk/binaries/content/assets/website-assets/services/ods/data-downloads-other-nhs-organisations/epcn.zip', paste0(github_repo_dir, '/PCN_ods.zip'), mode = 'wb')
+# unzip('/Users/richtyler/Documents/Repositories/Population-pyramids/PCN_ods.zip', exdir = github_repo_dir) 
+# 
+# ePCN <- read_excel("/Users/richtyler/Documents/Repositories/Population-pyramids/ePCN.xlsx", sheet = 'PCN Core Partner Details') %>% 
+#   select(`Partner Organisation Code`, `PCN Code`, `PCN Name`, `Practice CCG and PCN CCG match?`, `Practice Parent CCG Name`) %>% 
+#   rename(Code = 'Partner Organisation Code') %>% 
+#   rename(PCN_Code = 'PCN Code',
+#          PCN_Name = 'PCN Name',
+#          CCG_Name = 'Practice Parent CCG Name',
+#          Coterminous_PCN_CCG = 'Practice CCG and PCN CCG match?')
+
+# download.file('https://files.digital.nhs.uk/D2/1D35F3/gp-reg-pat-prac-lsoa-all-females-males-jul-18.zip', paste0(github_repo_dir, '/gp_lsoa_f.zip'), mode = 'wb')
+# unzip('/Users/richtyler/Documents/Repositories/Population-pyramids/gp_lsoa_f.zip', exdir = github_repo_dir)
+# 
+# GP_lsoa_f_2018 <- read_csv(paste0(github_repo_dir, '/gp-reg-pat-prac-lsoa-female.csv'))
+# GP_lsoa_m_2018 <- read_csv(paste0(github_repo_dir, '/gp-reg-pat-prac-lsoa-male.csv'))
+# GP_lsoa_b_2018 <- read_csv(paste0(github_repo_dir, '/gp-reg-pat-prac-lsoa-all.csv'))

@@ -238,6 +238,17 @@ var data = json_pyramid.filter(function(d){
     return d.Year === '2018' &
            d.Area_Name === 'West Sussex'})
 
+tokeep = ["65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"]
+
+over_65_data = data.filter(function(d,i){
+  return tokeep.indexOf(d.Age_group) >= 0 })
+
+// GET THE TOTAL POPULATION SIZE AND CREATE A FUNCTION FOR RETURNING THE PERCENTAGE
+var total65plusPop = d3.sum(over_65_data, function(d) { return d.Female_Population + d.Male_Population; });
+
+
+
+
 // List of years in the dataset
 var years_pyramid_1 = d3.map(json_pyramid, function (d) {
      return (d.Year)
@@ -419,6 +430,89 @@ svg_pyramid_1
 .attr("fill", "#ff6600")
 .on("mousemove", showTooltip_p1_male)
 .on('mouseout', mouseleave_p1)
+
+svg_pyramid_1
+.append("text")
+.attr("text-anchor", "start")
+.attr("y", 10)
+.attr("x", (width / 100) * 2 )
+.attr('opacity', 0)
+.transition()
+.duration(2000)
+.attr('opacity', 1)
+.style('font-weight', 'bold')
+.text('Population age 65+');
+
+var max90 = data.filter(function(d,i){
+  return d.Age_group === '90+ years' })
+
+var max90_position = Math.max(
+    d3.max(max90, function(d) { return d.Male_Population; }),
+    d3.max(max90, function(d) { return d.Female_Population; })
+  );
+
+svg_pyramid_1
+.append("text")
+.attr("text-anchor", "end")
+.attr("y", 15)
+.attr("x", function(d) { return male_zero - pyramid_scale_bars(max90_position) - 10; })
+.attr('opacity', 0)
+.transition()
+.duration(2000)
+.attr('opacity', 1)
+.style('font-weight', 'bold')
+.text('Males');
+
+svg_pyramid_1
+.append("text")
+.attr("text-anchor", "start")
+.attr("y", 15)
+.attr("x", function(d) { return female_zero + pyramid_scale_bars(max90_position) + 10; })
+.attr('opacity', 0)
+.transition()
+.duration(2000)
+.attr('opacity', 1)
+.style('font-weight', 'bold')
+.text('Females');
+
+
+svg_pyramid_1
+.append("text")
+.attr("text-anchor", "start")
+.attr('class', 'pop_65_class')
+.style('fill', 'Red')
+.style('font-weight', 'bold')
+.attr("y", 50)
+.attr("x", (width / 100) * 2 )
+.attr('opacity', 0)
+.transition()
+.duration(2000)
+.attr('opacity', 1)
+.text(d3.format(',.4r')(total65plusPop));
+
+svg_pyramid_1
+.append("text")
+.attr("text-anchor", "start")
+.attr('class', 'pop_65_text')
+.attr("y", 70)
+.attr("x", (width / 100) * 2)
+.attr('opacity', 0)
+.transition()
+.duration(2000)
+.attr('opacity', 1)
+.text('This is ' + d3.format('.1%')(total65plusPop / totalPopulation) + ' of the');
+
+svg_pyramid_1
+.append("text")
+.attr("text-anchor", "start")
+.attr('class', 'pop_65_text')
+.attr("y", 85)
+.attr("x", (width / 100) * 2)
+.attr('opacity', 0)
+.transition()
+.duration(2000)
+.attr('opacity', 1)
+.text('total population (' + d3.format(',.4r')(totalPopulation) +').');
 
 // Median age data
 var request = new XMLHttpRequest();

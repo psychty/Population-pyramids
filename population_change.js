@@ -182,9 +182,6 @@ var request = new XMLHttpRequest();
 var cot_20182838 = JSON.parse(request.responseText);
 
 
-
-
-
 // Create a function for tabulating the data
 function tabulate_cot(data, columns) {
 var table = d3.select('#population_18_28_38_table')
@@ -234,21 +231,6 @@ var request = new XMLHttpRequest();
 
 var json_pyramid = JSON.parse(request.responseText); // parse the fetched json data into a variable
 
-var data = json_pyramid.filter(function(d){
-    return d.Year === '2018' &
-           d.Area_Name === 'West Sussex'})
-
-tokeep = ["65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"]
-
-over_65_data = data.filter(function(d,i){
-  return tokeep.indexOf(d.Age_group) >= 0 })
-
-// GET THE TOTAL POPULATION SIZE AND CREATE A FUNCTION FOR RETURNING THE PERCENTAGE
-var total65plusPop = d3.sum(over_65_data, function(d) { return d.Female_Population + d.Male_Population; });
-
-
-
-
 // List of years in the dataset
 var years_pyramid_1 = d3.map(json_pyramid, function (d) {
      return (d.Year)
@@ -266,6 +248,8 @@ d3.select("#selectYearsP1Button")
     .attr("value", function (d) {
         return d; }) // corresponding value returned by the button
 
+var selectedYearP1Option = d3.select('#selectYearsP1Button').property("value")
+
 // List of years in the dataset
 var areas_pyramid_1 = d3.map(json_pyramid, function (d) {
    return (d.Area_Name)
@@ -275,13 +259,15 @@ var areas_pyramid_1 = d3.map(json_pyramid, function (d) {
 // We need to create a dropdown button for the user to choose which area to be displayed on the figure.
 d3.select("#selectAreasP1Button")
   .selectAll('myOptions')
-  .data(areas_pyramid_1)
+  .data(['West Sussex','Adur','Arun','Chichester','Crawley','Horsham','Mid Sussex','Worthing','South East','England'])
   .enter()
   .append('option')
   .text(function (d) {
         return d; }) // text to appear in the menu - this does not have to be as it is in the data (you can concatenate other values).
   .attr("value", function (d) {
         return d; }) // corresponding value returned by the button
+
+var selectedAreaP1Option = d3.select('#selectAreasP1Button').property("value")
 
 // append the svg object to the body of the page
 var svg_pyramid_1 = d3.select("#pyramid_1_datavis")
@@ -293,6 +279,75 @@ var svg_pyramid_1 = d3.select("#pyramid_1_datavis")
 
 // space for y axis
 margin.middle = 80;
+
+
+
+  var data = json_pyramid.filter(function(d){
+      return d.Year === selectedYearP1Option &
+             d.Area_Name === selectedAreaP1Option})
+
+function update_p1(data) {
+
+var selectedYearP1Option = d3.select('#selectYearsP1Button').property("value")
+var selectedAreaP1Option = d3.select('#selectAreasP1Button').property("value")
+
+// This selects the text on the figure and removes it imediately
+svg_pyramid_1
+ .selectAll("text")
+ .remove();
+
+// This selects the whole div, changes the r value for all circles to 0 and then removes the svg before new plots are rebuilt.
+svg_pyramid_1
+ .selectAll("*")
+ .transition()
+ .duration(750)
+ .attr("r", 0)
+ .remove();
+
+svg_pyramid_1
+ .selectAll("*")
+ .remove();
+
+var data = json_pyramid.filter(function(d){
+    return d.Year === selectedYearP1Option &
+           d.Area_Name === selectedAreaP1Option})
+
+var showTooltip_p1_male = function(d, i) {
+
+tooltip_pyramid_1_male
+  .html("<h2>" + d.Age_group + '</h2><p class = "side">The estimated number of males aged ' + d.Age_group + ' in ' + d.Year + ' was ' + d3.format(",.0f")(d.Male_Population) + '. This is ' + d3.format('.1%')(d.Male_Percentage) + ' of the population of males in ' + d.Area_Name + '.</p><p class = "side">The total population in ' + d.Area_Name + ' in ' + d.Year + ' is ' + d3.format(',.0f')(totalPopulation) + '</p>')
+  .style("opacity", 1)
+  .style("top", (event.pageY - 10) + "px")
+  .style("left", (event.pageX + 10) + "px")
+  .style("visibility", "visible")
+        }
+
+var showTooltip_p1_female = function(d, i) {
+
+tooltip_pyramid_1_female
+  .html("<h2>" + d.Age_group + '</h2><p class = "side">The estimated number of females aged ' + d.Age_group + ' in ' + d.Year + ' was ' + d3.format(",.0f")(d.Female_Population) + '. This is ' + d3.format('.1%')(d.Female_Percentage) + ' of the population of females in ' + d.Area_Name + '.</p><p class = "side">The total population in ' + d.Area_Name + ' in ' + d.Year + ' is ' + d3.format(',.0f')(totalPopulation) + '</p>')
+  .style("opacity", 1)
+  .style("top", (event.pageY - 10) + "px")
+  .style("left", (event.pageX + 10) + "px")
+  .style("visibility", "visible")
+        }
+
+var mouseleave_p1 = function(d) {
+
+tooltip_pyramid_1_male
+.style("visibility", "hidden")
+
+tooltip_pyramid_1_female
+.style("visibility", "hidden")
+            }
+
+tokeep = ["65-69 years", "70-74 years", "75-79 years", "80-84 years", "85-89 years", "90+ years"]
+
+over_65_data = data.filter(function(d,i){
+  return tokeep.indexOf(d.Age_group) >= 0 })
+
+// GET THE TOTAL POPULATION SIZE AND CREATE A FUNCTION FOR RETURNING THE PERCENTAGE
+var total65plusPop = d3.sum(over_65_data, function(d) { return d.Female_Population + d.Male_Population; });
 
 // GET THE TOTAL POPULATION SIZE AND CREATE A FUNCTION FOR RETURNING THE PERCENTAGE
 var totalPopulation = d3.sum(data, function(d) { return d.Female_Population + d.Male_Population; });
@@ -354,38 +409,6 @@ var tooltip_pyramid_1_female = d3.select("#pyramid_1_datavis")
   .style("border-width", "1px")
   .style("border-radius", "5px")
   .style("padding", "10px")
-
-
-var showTooltip_p1_male = function(d, i) {
-
-tooltip_pyramid_1_male
-  .html("<h2>" + d.Age_group + '</h2><p class = "side">The estimated number of males aged ' + d.Age_group + ' in ' + d.Year + ' was ' + d3.format(",.0f")(d.Male_Population) + '. This is ' + d3.format('.1%')(d.Male_Percentage) + ' of the population of males in ' + d.Area_Name + '.</p><p class = "side">The total population in ' + d.Area_Name + ' in ' + d.Year + ' is ' + d3.format(',.0f')(totalPopulation) + '</p>')
-  .style("opacity", 1)
-  .style("top", (event.pageY - 10) + "px")
-  .style("left", (event.pageX + 10) + "px")
-  .style("visibility", "visible")
-    }
-
-var showTooltip_p1_female = function(d, i) {
-
-tooltip_pyramid_1_female
-      .html("<h2>" + d.Age_group + '</h2><p class = "side">The estimated number of females aged ' + d.Age_group + ' in ' + d.Year + ' was ' + d3.format(",.0f")(d.Female_Population) + '. This is ' + d3.format('.1%')(d.Female_Percentage) + ' of the population of females in ' + d.Area_Name + '.</p><p class = "side">The total population in ' + d.Area_Name + ' in ' + d.Year + ' is ' + d3.format(',.0f')(totalPopulation) + '</p>')
-      .style("opacity", 1)
-      .style("top", (event.pageY - 10) + "px")
-      .style("left", (event.pageX + 10) + "px")
-      .style("visibility", "visible")
-        }
-
-var mouseleave_p1 = function(d) {
-// var subgroup_key = d3.select(this.parentNode).datum().index
-
-tooltip_pyramid_1_male
-.style("visibility", "hidden")
-
-tooltip_pyramid_1_female
-.style("visibility", "hidden")
-
-  }
 
 // .tickFormat(d3.format('.0%'))
 // ages = data.map(function(d) { return d.Age_group; })
@@ -475,6 +498,19 @@ svg_pyramid_1
 .style('font-weight', 'bold')
 .text('Females');
 
+svg_pyramid_1
+.append("text")
+.attr("text-anchor", "start")
+.attr('class', 'year_pyramid')
+.attr("y", 10)
+.attr("x", width - 25)
+.attr('opacity', 0)
+.transition()
+.duration(2000)
+.attr('opacity', 1)
+.style('font-weight', 'bold')
+.text(selectedYearP1Option);
+
 
 svg_pyramid_1
 .append("text")
@@ -514,6 +550,28 @@ svg_pyramid_1
 .attr('opacity', 1)
 .text('total population (' + d3.format(',.4r')(totalPopulation) +').');
 
+// Select the div id total_death_string (this is where you want the result of this to be displayed in the html page)
+d3.select("#selected_p1_title")
+  	.data(data)
+  	.text(function(d){
+  	return "Population pyramid; " + selectedAreaP1Option + '; ' + selectedYearP1Option + ';' });
+
+}
+
+// Initialize the plot with the first dataset
+update_p1(data)
+
+  d3.select("#selectAreasP1Button").on("change", function(d) {
+    var selectedYearP1Option = d3.select('#selectYearsP1Button').property("value")
+    var selectedAreaP1Option = d3.select('#selectAreasP1Button').property("value")
+  update_p1(data)
+  })
+
+  d3.select("#selectYearsP1Button").on("change", function(d) {
+    var selectedYearP1Option = d3.select('#selectYearsP1Button').property("value")
+    var selectedAreaP1Option = d3.select('#selectAreasP1Button').property("value")
+  update_p1(data)
+  })
 // Median age data
 var request = new XMLHttpRequest();
     request.open("GET", "./area_median_age_df.json", false);

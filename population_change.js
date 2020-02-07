@@ -119,7 +119,6 @@ var topTable = tabulate_pop(pop_2018, ['Age', 'Total (MYE)', 'Total (GP register
 
 // components of change districts in wsx
 
-
 // Population 2018 data
 var request = new XMLHttpRequest();
     request.open("GET", "./area_components_of_change_df.json", false);
@@ -130,7 +129,6 @@ var coc_2018 = JSON.parse(request.responseText);
 // .sort(function(a,b) {
     // return age_levels.indexOf( a.Age_group) > age_levels.indexOf( b.Age_group );
 // });
-
 
 // Create a function for tabulating the data
 function tabulate_coc(data, columns) {
@@ -180,7 +178,6 @@ var request = new XMLHttpRequest();
     request.send(null);
 
 var cot_20182838 = JSON.parse(request.responseText);
-
 
 // Create a function for tabulating the data
 function tabulate_cot(data, columns) {
@@ -280,11 +277,12 @@ var svg_pyramid_1 = d3.select("#pyramid_1_datavis")
 // space for y axis
 margin.middle = 80;
 
+var data = json_pyramid.filter(function(d){
+    return d.Year === selectedYearP1Option &
+           d.Area_Name === selectedAreaP1Option})
 
-
-  var data = json_pyramid.filter(function(d){
-      return d.Year === selectedYearP1Option &
-             d.Area_Name === selectedAreaP1Option})
+var data_all_years = json_pyramid.filter(function(d){
+   return d.Area_Name === selectedAreaP1Option})
 
 function update_p1(data) {
 
@@ -311,6 +309,9 @@ svg_pyramid_1
 var data = json_pyramid.filter(function(d){
     return d.Year === selectedYearP1Option &
            d.Area_Name === selectedAreaP1Option})
+
+var data_all_years = json_pyramid.filter(function(d){
+    return d.Area_Name === selectedAreaP1Option})
 
 var showTooltip_p1_male = function(d, i) {
 
@@ -354,8 +355,8 @@ var totalPopulation = d3.sum(data, function(d) { return d.Female_Population + d.
 
 // find the maximum data value on either side
 var maxPopulation = Math.max(
-  d3.max(data, function(d) { return d.Male_Population; }),
-  d3.max(data, function(d) { return d.Female_Population; })
+  d3.max(data_all_years, function(d) { return d.Male_Population; }),
+  d3.max(data_all_years, function(d) { return d.Female_Population; })
 );
 
 // plotting region for each pyramid and Where should the pyramids start (males on the left)

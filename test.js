@@ -1,154 +1,129 @@
-// SET UP DIMENSIONS
-var w = 500,
-    h = 300;
-
-// margin.middle is distance from center line to each y-axis
-var margin = {
-  top: 20,
-  right: 20,
-  bottom: 24,
-  left: 20,
-  middle: 28
-};
-
-// the width of each side of the chart
-var regionWidth = w/2 - margin.middle;
-
-// these are the x-coordinates of the y-axes
-var pointA = regionWidth,
-    pointB = w - regionWidth;
-
-// some contrived data
-var exampleData = [
-  {group: '0-9', male: 10, female: 12},
-  {group: '10-19', male: 14, female: 15},
-  {group: '20-29', male: 15, female: 18},
-  {group: '30-39', male: 18, female: 18},
-  {group: '40-49', male: 21, female: 22},
-  {group: '50-59', male: 19, female: 24},
-  {group: '60-69', male: 15, female: 14},
-  {group: '70-79', male: 8, female: 10},
-  {group: '80-89', male: 4, female: 5},
-  {group: '90-99', male: 2, female: 3},
-  {group: '100-109', male: 1, female: 1},
-];
-
-// GET THE TOTAL POPULATION SIZE AND CREATE A FUNCTION FOR RETURNING THE PERCENTAGE
-var totalPopulation = d3.sum(exampleData, function(d) { return d.male + d.female; }),
-    percentage = function(d) { return d / totalPopulation; };
-
-// CREATE SVG
-var svg = d3.select("#pyramid_1_datavis").append('svg')
-  .attr('width', margin.left + w + margin.right)
-  .attr('height', margin.top + h + margin.bottom)
-  // ADD A GROUP FOR THE SPACE WITHIN THE MARGINS
-  .append('g')
-    .attr('transform', translation(margin.left, margin.top));
-
-// find the maximum data value on either side
-//  since this will be shared by both of the x-axes
-var maxValue = Math.max(
-  d3.max(exampleData, function(d) { return percentage(d.male); }),
-  d3.max(exampleData, function(d) { return percentage(d.female); })
-);
-
-// SET UP SCALES
-
-// the xScale goes from 0 to the width of a region
-//  it will be reversed for the left x-axis
-var xScale = d3.scale.linear()
-  .domain([0, maxValue])
-  .range([0, regionWidth])
-  .nice();
-
-var xScaleLeft = d3.scale.linear()
-  .domain([0, maxValue])
-  .range([regionWidth, 0]);
-
-var xScaleRight = d3.scale.linear()
-  .domain([0, maxValue])
-  .range([0, regionWidth]);
-
-var yScale = d3.scale.ordinal()
-  .domain(exampleData.map(function(d) { return d.group; }))
-  .rangeRoundBands([h,0], 0.1);
 
 
-// SET UP AXES
-var yAxisLeft = d3.svg.axis()
-  .scale(yScale)
-  .orient('right')
-  .tickSize(4,0)
-  .tickPadding(margin.middle-4);
+// http://jsfiddle.net/u3tjmy0b/4/
 
-var yAxisRight = d3.svg.axis()
-  .scale(yScale)
-  .orient('left')
-  .tickSize(4,0)
-  .tickFormat('');
+//create svg element
+var out_of_svg = d3.select("#info_graphi")
+.append("svg")
+.attr('class', 'svg_info')
+.attr('height', 80)
+.attr('width', 250)
+// .attr("viewBox", "0 0 100 100");
 
-var xAxisRight = d3.svg.axis()
-  .scale(xScale)
-  .orient('bottom')
-  .tickFormat(d3.format('%'));
+// Define the gradient
+var gradient = out_of_svg.append("svg:defs")
+.append("svg:linearGradient")
+.attr("id", "gradient")
+.attr("y1", "100%")
+.attr("y2", "0%")
+.attr("spreadMethod", "pad");
 
-var xAxisLeft = d3.svg.axis()
-  // REVERSE THE X-AXIS SCALE ON THE LEFT SIDE BY REVERSING THE RANGE
-  .scale(xScale.copy().range([pointA, 0]))
-  .orient('bottom')
-  .tickFormat(d3.format('%'));
+// Define the gradient colors
+gradient
+.append("svg:stop")
+.attr("offset", "0%")
+.attr("stop-color", "orange")
+.attr("stop-opacity", 1);
 
-// MAKE GROUPS FOR EACH SIDE OF CHART
-// scale(-1,1) is used to reverse the left side so the bars grow left instead of right
-var leftBarGroup = svg.append('g')
-  .attr('transform', translation(pointA, 0) + 'scale(-1,1)');
-var rightBarGroup = svg.append('g')
-  .attr('transform', translation(pointB, 0));
+//define an icon store it in svg <defs> elements as a reusable component - this geometry can be generated from Inkscape, Illustrator or similar
+out_of_svg
+.append("defs")
+.append("g")
+.attr("id", "iconCustom")
+.append("path")
+.attr("d", "M3.5,2H2.7C3,1.8,3.3,1.5,3.3,1.1c0-0.6-0.4-1-1-1c-0.6,0-1,0.4-1,1c0,0.4,0.2,0.7,0.6,0.9H1.1C0.7,2,0.4,2.3,0.4,2.6v1.9c0,0.3,0.3,0.6,0.6,0.6h0.2c0,0,0,0.1,0,0.1v1.9c0,0.3,0.2,0.6,0.3,0.6h1.3c0.2,0,0.3-0.3,0.3-0.6V5.3c0,0,0-0.1,0-0.1h0.2c0.3,0,0.6-0.3,0.6-0.6V2.6C4.1,2.3,3.8,2,3.5,2z")
+.attr("transform", "scale(4)")
 
-// DRAW AXES
-svg.append('g')
-  .attr('class', 'axis y left')
-  .attr('transform', translation(pointA, 0))
-  .call(yAxisLeft)
-  .selectAll('text')
-  .style('text-anchor', 'middle');
+//background rectangle
+out_of_svg
+.append("rect")
+.attr('class', 'rect_info')
+.attr("width", 250)
+.attr("height", 80);
 
-svg.append('g')
-  .attr('class', 'axis y right')
-  .attr('transform', translation(pointB, 0))
-  .call(yAxisRight);
+//specify the number of columns and rows for pictogram layout
+var numCols = 10;
+var numRows = 1;
 
-svg.append('g')
-  .attr('class', 'axis x left')
-  .attr('transform', translation(0, h))
-  .call(xAxisLeft);
+//padding for the grid
+var xPadding = 25;
+var yPadding = 25;
 
-svg.append('g')
-  .attr('class', 'axis x right')
-  .attr('transform', translation(pointB, h))
-  .call(xAxisRight);
+//horizontal and vertical spacing between the icons
+var hBuffer = 20;
+var wBuffer = 20;
 
-// DRAW BARS
-leftBarGroup.selectAll('.bar.left')
-  .data(exampleData)
-  .enter().append('rect')
-    .attr('class', 'bar left')
-    .attr('x', 0)
-    .attr('y', function(d) { return yScale(d.group); })
-    .attr('width', function(d) { return xScale(percentage(d.male)); })
-    .attr('height', yScale.rangeBand());
+//generate a d3 range for the total number of required elements
+var myIndex = d3.range(numCols * numRows);
 
-rightBarGroup.selectAll('.bar.right')
-  .data(exampleData)
-  .enter().append('rect')
-    .attr('class', 'bar right')
-    .attr('x', 0)
-    .attr('y', function(d) { return yScale(d.group); })
-    .attr('width', function(d) { return xScale(percentage(d.female)); })
-    .attr('height', yScale.rangeBand());
+//text element to display number of icons highlighted
+out_of_svg.append("text")
+    .attr("id", "txtValue")
+    .attr("x", xPadding)
+    .attr("y", yPadding)
+    .attr("dy", -3)
+    .text("0");
 
+//create group element and create an svg <use> element for each icon
+out_of_svg.append("g")
+    .attr("id", "pictoLayer")
+    .selectAll("use")
+    .data(myIndex)
+    .enter()
+    .append("use")
+        .attr("xlink:href", "#iconCustom")
+        .attr("id", function (d) {
+            return "icon" + d;
+        })
+        .attr("x", function (d) {
+            var remainder = d % numCols;//calculates the x position (column number) using modulus
+            return xPadding + (remainder * wBuffer);//apply the buffer and return value
+        })
+          .attr("y", function (d) {
+              var whole = Math.floor(d / numCols)//calculates the y position (row number)
+              return yPadding + (whole * hBuffer);//apply the buffer and return the value
+          })
+        .classed("iconPlain", true);
 
-// so sick of string concatenation for translations
-function translation(x,y) {
-  return 'translate(' + x + ',' + y + ')';
+var data = { percent: 34.0 };
+
+function drawIsotype(dataObject) {
+    var valueLit = dataObject.percent,
+    total = numCols * numRows,
+    valuePict = total * (dataObject.percent / 100),
+    valueDecimal = (valuePict % 1);
+
+    d3.select("#txtValue").text(valueLit + '%');
+
+    d3.selectAll("use").attr("fill", function (d, i) {
+        if (d < valuePict - 1) {
+          return "orange";
+        } else if (d > (valuePict - 1) && d < (valuePict)){
+          gradient.append("svg:stop")
+            .attr("offset", (valueDecimal * 100) + '%')
+            .attr("stop-color", "orange")
+            .attr("stop-opacity", 1);
+          gradient.append("svg:stop")
+            .attr("offset", (valueDecimal * 100) + '%')
+            .attr("stop-color", "#ff0266")
+            .attr("stop-opacity", 1);
+         gradient.append("svg:stop")
+            .attr("offset", '100%')
+            .attr("stop-color", "#ff0266")
+            .attr("stop-opacity", 1);
+          return "url(#gradient)";
+        } else {
+          return "#ff0266"; // This is for any whole icons after the gradient starts
+        }
+    });
 }
+drawIsotype(data);
+
+// Colour transition?
+// icons
+//   .attr("fill", "#eee")
+//   .transition()
+//   .duration(750)
+//   .delay((d, i) -> i/5*750)
+//   .attr("fill", (d, i) -> if i is 0 then "green" else "blue")
+//

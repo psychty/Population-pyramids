@@ -180,3 +180,24 @@ table {
 .menu_list:hover{
   background: #ccc;
 }
+
+
+/* infographic */
+
+.svg_info {
+    overflow: none;
+    padding: 10px;
+    float: left;
+}
+
+.text_info {
+    fill: orange;
+    text-anchor: left;
+    font-size: 12px;
+    font-family: sans-serif,Helvetica,Arial;
+    font-weight: bold;
+}
+
+.rect_info {
+    fill: #555555;
+}

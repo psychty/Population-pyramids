@@ -341,7 +341,6 @@ Areas_data_file %>%
   toJSON() %>% 
   write_lines(paste0(github_repo_dir,'/area_population_totals_df.json'))
 
-
 cot <- Areas_data_file %>% 
   filter(Age_band_type == 'broad years') %>% 
   group_by(Area_Name, Year) %>% 
@@ -570,8 +569,6 @@ SAPE <- read_excel("/Users/richtyler/Documents/Repositories/Population-pyramids/
   select(-`LA (2019 boundaries)`)
 
 
-
-
 # https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fpopulationandmigration%2fpopulationestimates%2fdatasets%2flowersuperoutputareapopulationdensity%2fmid2018sape21dt11/sape21dt11mid2018lsoapopulationdensity.zip
 
 
@@ -634,6 +631,8 @@ OADR_1 %>%
             Number_Workers = sum(Number_Workers)) %>% 
   ungroup() %>% 
   mutate(OADR = Number_SPA / Number_Workers * 1000) %>% 
+  mutate(Area = factor(Area, levels = Areas_to_include)) %>% 
+  arrange(Area) %>% 
   toJSON() %>% 
   write_lines(paste0(github_repo_dir,'/area_oadr_df.json'))
 

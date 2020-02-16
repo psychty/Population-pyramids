@@ -5,7 +5,8 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Population estimates - West Sussex JSNA</title>
+    <title>Population - West Sussex JSNA</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css", type="text/css">
     <link rel="stylesheet" type="text/css" href="style.css">
     <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"> -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet">
@@ -113,15 +114,22 @@
 
 <h2>Where do people live within West Sussex?</h2>
 
-<p>In West Sussex, in 2018, there was estimated to be 431 people per square kilometre. There is variation across the county with Chichester having as few as 154 residents per square kilometre and Worthing having more than twenty times this at 3,383 residents per square kilometre. The population density of West Sussex districts has been fairly stable over the last 15 years.</p>
+<p>In West Sussex, in 2018, there was estimated to be 431 people per square kilometre. There is a lot of variation across the county, starting at district level with Chichester having as few as 154 residents per square kilometre and Worthing having more than twenty times this at 3,383 residents per square kilometre. The population density of West Sussex districts has been fairly stable over the last 15 years.</p>
+
+<p>There is even more variation across the neighbourhoods of West Sussex. At LSOA level, the population density ranges from 20 people per square kilometre in a neighbourhood (Chichester 007B) in Funtington ward in Chichester to more than 13,000 people per square kilometre in Worthing 011D (in Heene ward, Worthing). More than a third of the neighbourhoods in West Sussex have a population density of less than 2,000 per square kilometre (the yellow colour on the map).
+
+<div id = "map_density"></div>
 
 <p>Where are most older people living?</p>
 <p>Where do GP practice populations reside?</p>
 
 </div>
 <div class = 'right-sidebar'>
-  <p class = 'side'>The mid year population estimates show us how many people live per square kilometre, as a measure of population density (how many people share a unit of space). </p>
-  </div>
+  <p class = 'side'>The mid year population estimates show us how many people live per square kilometre, as a measure of population density (how many people share a unit of space).</p>
+  <p class = 'side'>Lower-layer super output areas (LSOAs) are small area geographies designed to improve the reporting of local area data. There are 32,844 LSOAs in England, and boundaries are coterminous with local authority boundaries and clinical commissioning groups.</p>
+  <p class = 'side'>LSOAs are defined from census data (e.g. the latest update is 2011) so that each LSOA has an average of 1,500 residents or 650 households. The consistency in population size helps with reporting of area based statistics whereas other small area boundaries such as wards or parishes tend to change frequently and do not always hold a consistent population size. LSOAs are not coterminous with wards and parish boundaries.</p>
+  <p class = 'side'>There are 505 LSOAs in West Sussex and each LSOA has a code and name which reflects the district or authority it is in (e.g. Arun 002A). These names are not particularly helpful for locating an area on a map. As such, whilst LSOAs are not coterminous with ward boundaries, if you click on an area the name of the closest ward is given for reference.</p>
+</div>
 </div>
 
 <div class = 'row' id = 'migration'>
@@ -171,6 +179,10 @@
 
 <div class="content" id = 'content_size'>
 
+  <!-- https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/ageing/articles/livinglongerandoldagedependencywhatdoesthefuturehold/2019-06-24 -->
+
+<p>An increase in the older population has implications for the economy in terms of providing services and state pensions; however, this economic impact will be affected by people living healthier lives for longer and increases in economic activity at older ages.</p>
+
 <h3>The old age dependency ratio...</h3>
 <p>The old age dependency ratio measures the number of people of state pension age (SPA) and over for every 1,000 people of working age (16 to SPA).</p>
 <p>Women's state pension age increased to 65 between April 2016 and November 2018. From December 2018 the SPA for both men and women will increase to reach 66 by October 2020 (Pensions Act 2011). Between 2026 and 2027 SPA will increase to 67 years for both sexes (Pensions Act 2014), SPA will increase to 68 years for both men and women between 2044 and 2046 (Pensions Act 2007).</p>
@@ -183,6 +195,7 @@
 <p>In West Sussex...</p>
 <p>Remember, this is not an ideal estimate of old age dependency as it assumes that all those above SPA are dependent and that all those of working age are economically active and not infact dependent themselves.</p>
 
+
 <p>Technologies may change in the future such that people are able to stay healthier and independent for longer and the OADR measure may become less useful as more people work up to and beyond SPA; alternative measures that include economic activity may provide a more meaningful picture of economic dependency.</p>
 </div>
 
@@ -191,21 +204,21 @@
 </div>
 </div>
 
+<footer class="footer">Made by Dr Rich Tyler <a href = "https://github.com/psychty", target = "_blank">github/psychty</a> 2020</footer>
+
 </div>
 </div>
 
 
-<footer>
-    <div class="left-foot"> </div>
-    <div class="right-foot">Made by Dr Rich Tyler<br><a href='https://psychty.github.io' target="_blank">psychty.github.io</a><br>November 2019 </div>
-</footer>
 
-<script src="https://d3plus.org/js/d3plus.v2.0.0-alpha.22.full.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.2/d3.min.js"></script>
+<script src= "https://unpkg.com/shpjs@latest/dist/shp.js"></script>
 <script src="https://d3js.org/d3-format.v1.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src = 'population_change.js'></script>
+<script src = 'population_maps.js'></script>
 <script src = 'oadr.js'></script>
 <!-- <script src = 'test.js'></script> -->
 </body>

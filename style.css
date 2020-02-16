@@ -1,21 +1,25 @@
+/* The map does not have to have a specified width but it does need a height */
+
+#map_density {
+  height: 550px
+ }
+
+@media screen and (max-width: 1400px) {
+#map_density {
+  height: 450px
+ }
+}
+
 *{
   font-family: 'Open Sans', sans-serif;
-  /* font-size: .85rem; */
+  font-size: .85rem;
   }
 
 p {
   font-size: .9rem;
 }
 
-* {-webkit-font-smoothing: antialiased;}
-
-div {
-    display: inline-block;
-}
-
-svg {
-  background-color: #FFF;
-}
+/* * {-webkit-font-smoothing: antialiased;} */
 
 .header {
  margin: auto;
@@ -28,176 +32,200 @@ svg {
 }
 
 .left-sidebar {
-  float: left;
-  width: calc(20% - 40px);
-  top: 0;
-
-  margin-left: 20px;
-  margin-right: 20px;
-  position: sticky;
+float: left;
+width: calc(20% - 40px);
+top: 0;
+margin-left: 20px;
+margin-right: 20px;
+/* display: inline-block; */
+position: sticky;
 }
 
 .main {
-  width: calc(80% - 40px);
-  top: 0;
-  margin-left: 20px;
-  margin-right: 20px;
-  float: right;
+width: calc(80% - 40px);
+top: 0;
+margin-left: 20px;
+margin-right: 20px;
+float: right;
+display: inline-block;
 }
 
 .content {
-  float: none;
-  width: calc(65% - 10px);
-  margin-right: 10px;
+float: none;
+width: calc(65% - 10px);
+margin-right: 10px;
+display: inline-block;
 }
 
 .right-sidebar {
-  float: right;
-  width: calc(35% - 40px);
-  color: #444;
-  margin-left: 20px;
-  margin-right: 20px;
-  top: 0;
+float: right;
+width: calc(35% - 40px);
+color: #444;
+margin-left: 20px;
+margin-right: 20px;
+top: 0;
+display: inline-block;
 }
 
 /* Fonts */
-
 h1 {
-    font-size: 1.8rem;
-    /* font-family: "Garamond", serif; */
-    font-weight: bold;
-    color: #256cb2;
-    /* font-family: "Verdana"; */
+font-size: 1.8rem;
+font-weight: bold;
+color: #256cb2;
 }
 
 h2 {
-    font-size: 1.2rem;
-    /* font-family: "Garamond", serif; */
-    font-weight: bold;
-    color: #256cb2;
-  }
+font-size: 1.2rem;
+font-weight: bold;
+color: #256cb2;
+}
 
 h3 {
-  font-size: 1.2rem;
-  /* font-family: "Garamond", serif; */
-  font-weight: bold;
-  color: #000;
-    }
+font-size: 1.2rem;
+font-weight: bold;
+color: #000;
+}
 
 .pop_65_class{
-  font-size: 2.5rem;
-  color: #E93F36;
+font-size: 2.5rem;
+color: #E93F36;
 }
 
 .year_pyramid{
-  font-size: 2rem;
+font-size: 2rem;
 }
 
 .pop_65_text{
-  font-size: .75rem;
+font-size: .75rem;
 }
 
 p.side {
-  font-size: .8rem;
-  text-align: justify;
-  text-justify: inter-word;
+font-size: .8rem;
+text-align: justify;
+text-justify: inter-word;
 }
 
 p.side_important {
-  text-align: justify;
-    font-size: .8rem;
-  /* font-weight: bold; */
-  color: red;
-  text-justify: inter-word;
+text-align: justify;
+font-size: .8rem;
+color: red;
+text-justify: inter-word;
 }
 
 p {
-  font-size: 1rem;
-  text-align: justify;
-  text-justify: inter-word;
+font-size: 1rem;
+text-align: justify;
+text-justify: inter-word;
 }
 
 a {
-  color: #cc0052;
+color: #cc0052;
 }
 
 /* Tables */
 table {
-		width: 100%;
-		border-collapse: collapse;
+width: 100%;
+border-collapse: collapse;
+font-size: .9rem;
+color: #000000;
+}
 
-    font-size: .9rem;
-    color: #000000;
-	}
+tr:nth-of-type(odd) {
+background: #d6ebff;
+}
 
-  tr:nth-of-type(odd) {
-		background: #d6ebff;
-	}
+th {
+background-color: #ffffff;
+color: #256cb2;
+font-size: 1.2rem;
+}
 
-	th {
-    background-color: #ffffff;
-		color: #256cb2;
-    font-size: 1.2rem;
-	}
-
-	td, th {
-    padding-top: 2px;
-		padding-right: 5px;
-    padding-left: 1px;
-    padding-bottom: 2px;
-    font-size: .9rem;
-		border: 1px solid #ffffff;
-    vertical-align: top;
-		text-align: left;
-	}
+td, th {
+padding-top: 2px;
+padding-right: 5px;
+padding-left: 1px;
+padding-bottom: 2px;
+font-size: .9rem;
+border: 1px solid #ffffff;
+vertical-align: top;
+text-align: left;
+}
 
 .tooltip_pyramid_bars {
-  max-width: 240px;
-  padding-top: 1px;
-  padding-left: 3px;
-  padding-right: 3px;
-  background: #ffffff;
-  color: #000000;
-  border-radius: 5px;
-  border: 1px solid #000;
+max-width: 240px;
+padding-top: 1px;
+padding-left: 3px;
+padding-right: 3px;
+background: #ffffff;
+color: #000000;
+border-radius: 5px;
+border: 1px solid #000;
 }
 
 .menu_list {
-  display: block;
-  padding: 0.5em 0.5em;
-  border: none;
-  color: #000000;
-  background: #ffffff;
-  cursor: pointer;
-  text-align: left;
-  font-size: .8rem;
-  font-family: inherit;
-  margin: 0 0 1px;
-  border-left: 8px solid #ccc;
-  position: relative;
+display: block;
+padding: 0.5em 0.5em;
+border: none;
+color: #000000;
+background: #ffffff;
+cursor: pointer;
+text-align: left;
+font-size: .8rem;
+font-family: inherit;
+margin: 0 0 1px;
+border-left: 8px solid #ccc;
+position: relative;
 }
 
 .menu_list:hover{
-  background: #ccc;
+background: #ccc;
 }
 
-
 /* infographic */
-
 .svg_info {
-    overflow: none;
-    padding: 10px;
+overflow: none;
+padding: 10px;
+float: left;
+}
+
+.info {
+padding: 6px 8px;
+font: 12px/14px Arial, Helvetica, sans-serif;
+background: white;
+background: rgba(255,255,255,0.8);
+box-shadow: 0 0 15px rgba(0,0,0,0.2);
+border-radius: 5px;
+}
+
+.legend {
+    line-height: 16px;
+    color: #555;
+    padding: 3px;
+    background: white;
+    opacity: .9;
+}
+
+.legend i {
+    width: 14px;
+    height: 14px;
     float: left;
+    margin-right: 8px;
+    opacity: 1;
 }
 
 .text_info {
-    fill: orange;
-    text-anchor: left;
-    font-size: 12px;
-    font-family: sans-serif,Helvetica,Arial;
-    font-weight: bold;
+fill: orange;
+text-anchor: left;
+font-size: 12px;
+font-family: sans-serif,Helvetica,Arial;
+font-weight: bold;
 }
 
 .rect_info {
-    fill: #555555;
+fill: #555555;
+}
+
+.footer {
+  float: right;
+  display: inline-block;
 }

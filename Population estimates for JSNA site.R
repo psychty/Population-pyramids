@@ -1,7 +1,7 @@
 # This uses the easypackages package to load several libraries at once. Note: it should only be used when you are confident that all packages are installed as it will be more difficult to spot load errors compared to loading each one individually.
 library(easypackages)
 
-libraries(c("readxl", "readr", "plyr", "dplyr", "ggplot2", "png", "tidyverse", "reshape2", "scales", "viridis", "rgdal", "officer", "flextable", "tmaptools", "lemon", "fingertipsR", "PHEindicatormethods", 'jsonlite'))
+libraries(c("readxl", "readr", "plyr", "dplyr", "ggplot2", "png", "tidyverse", "reshape2", "scales", "viridis", "rgdal", "tmaptools", "lemon", "fingertipsR", "PHEindicatormethods", 'spdplyr', 'geojsonio', 'rmapshaper', 'jsonlite', 'rgeos', 'sp', 'sf', 'maptools'))
 
 capwords = function(s, strict = FALSE) {
   cap = function(s) paste(toupper(substring(s, 1, 1)),
@@ -77,7 +77,7 @@ ONS_projection_1941_quinary <- ONS_projections_SYOA %>%
   mutate(Data_type = "Projected - ONS",
          Age_band_type = "5 years")
 
-unique(ONS_projection_1941_quinary$`Age group`)
+# unique(ONS_projection_1941_quinary$`Age group`)
 
 ONS_projection_1941_10_year <- ONS_projections_SYOA %>% 
   filter(AGE_GROUP != "All ages") %>% 
@@ -428,14 +428,87 @@ Component_change__wsx_18 <- WSx_component_change %>%
   mutate(`Population change since 2017` = paste0(ifelse(pop_change > 0, '+', '-'), format(round(pop_change, -2), big.mark = ',', trim = TRUE))) %>% 
   select(Area_name, `Births per 1,000 population`,`Deaths per 1,000 population`,`Internal in per 1,000 population`,`Internal out per 1,000 population`,`International in per 1,000 population`,`International out per 1,000 population`, `Population in 2018`,`Population change since 2017`)
 
-# Population density
+rm(five_1, five_2, five_3, Areas_estimates_file, Areas_projections_file, df, NOMIS_mye_df, ONS_MYE_10_year, ONS_MYE_broad, ONS_MYE_quinary, ONS_mye_SYOA, ONS_projection_1941_10_year, ONS_projection_1941_broad, ONS_projection_1941_quinary, ONS_projections_SYOA)
+
+# Small area geographies - LSOAs ####
+
+# We need to do a bit of hacking this about to keep the integrity of the coastline around Chichester harbour but also making sure that we dont include clips of all the rivers in Wsx!
+
+#Grab all full extent LSOAs for areas with LSOAs that have names starting with Adur, Arun, Chichester, Crawley, Horsham, Mid Sussex, Worthing and Lewes (as we know there are a couple of LSOAs outside of the boundary)
+LSOA_boundary_fe <- as(st_read(paste0("https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LSOA_DEC_2011_EW_BFE/FeatureServer/0/query?where=%20(LSOA11NM%20like%20'%25ADUR%25'%20OR%20LSOA11NM%20like%20'%25ARUN%25'%20OR%20LSOA11NM%20like%20'%25CHICHESTER%25'%20OR%20LSOA11NM%20like%20'%25CRAWLEY%25'%20OR%20LSOA11NM%20like%20'%25HORSHAM%25'%20OR%20LSOA11NM%20like%20'%25MID%20SUSSEX%25'%20OR%20LSOA11NM%20like%20'%25WORTHING%25')%20&outFields=LSOA11CD,LSOA11NM&outSR=4326&f=geojson")), 'Spatial')
+
+# We can grab a subset of LSOAs for just Chichester
+LSOA_boundary_clipped <- as(st_read(paste0("https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LSOA_DEC_2011_EW_BFC/FeatureServer/0/query?where=%20(LSOA11NM%20like%20'%25CHICHESTER%25')%20&outFields=LSOA11CD,LSOA11NM&outSR=4326&f=json")), 'Spatial')
+
+# Extract the LSOAs we know need to be clipped from the Chichester object
+LSOA_boundary_clipped <- LSOA_boundary_clipped %>% 
+  filter(LSOA11CD %in% c('E01031532', 'E01031475','E01031476','E01031496','E01031542','E01031540','E01031524','E01031529','E01031513'))
+
+# We want to select all the LSOAs that were not clipped in the above object
+LSOA_boundary_fe <- LSOA_boundary_fe %>% 
+  filter(!LSOA11CD %in% LSOA_boundary_clipped$LSOA11CD)
+
+# Join the two objects. This will now contain all of Chichester LSOAs (some clipped and some full extent) as well as all LSOAs for the rest of WSx and Lewes. 
+LSOA_boundary <- rbind(LSOA_boundary_fe, LSOA_boundary_clipped)
+
+# We can remove the old objects
+rm(LSOA_boundary_fe, LSOA_boundary_clipped)
+
+# Population density ####
 
 # download.file('https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fpopulationandmigration%2fpopulationestimates%2fdatasets%2fpopulationestimatesforukenglandandwalesscotlandandnorthernireland%2fmid20182019laboundaries/ukmidyearestimates20182019ladcodes.xls', paste0(github_repo_dir, '/pop_density.xlsx'), mode = 'wb')
+
+lsoa_ward_best_fit <- read_csv('https://opendata.arcgis.com/datasets/8c05b84af48f4d25a2be35f1d984b883_0.csv') %>% 
+  mutate(ward_label = paste0(WD18NM, ' ward in ', LAD18NM)) %>% 
+  select(LSOA11CD, ward_label) 
+
+lsoa_pop_density <- read_excel(paste0(github_repo_dir, '/SAPE21DT11-mid-2018-lsoa-population-density.xlsx'), sheet = 'Mid-2018 Population Density', skip = 4) %>% 
+  left_join(lsoa_ward_best_fit, by = c('Code' = 'LSOA11CD')) %>% 
+  rename(Pop_per_sq_km = `People per Sq Km`) %>% 
+  rename(Pop_2018 = `Mid-2018 population`) %>% 
+  rename(Area_sq_km = `Area Sq Km`)
 
 pop_density <- read_csv(paste0(github_repo_dir, '/pop_density.csv')) %>% 
   select(Name, `2018 people per sq. km`) %>% 
   rename(Area = Name) %>% 
   filter(Area %in% c('Adur', 'Arun', 'Chichester', 'Crawley', 'Horsham', 'Mid Sussex', 'Worthing', 'West Sussex'))
+
+area_x_lsoas_part_a = '1249933190...1249933192,1249933265,1249933186,1249933187,1249933225,1249933226,1249933193...1249933197,1249933266,1249933227,1249933229,1249933230,1249933267,1249933268,1249933188,1249933189,1249933214,1249933215,1249933259,1249933270...1249933273,1249933207,1249933208,1249933210,1249933262...1249933264,1249933212,1249933222...1249933224,1249933198,1249933199,1249933209,1249933255,1249933261,1249933269,1249933211,1249933213,1249933257,1249933258,1249933260,1249933200,1249933228,1249933254,1249933256,1249933201...1249933203,1249933205,1249933206,1249933217,1249933238...1249933240,1249933204,1249933233,1249933234,1249933241,1249933242,1249933216,1249933218...1249933221,1249933243,1249933244,1249933250...1249933252,1249933231,1249933232,1249933235...1249933237,1249933253,1249933180...1249933185,1249933245...1249933249,1249933149...1249933152,1249933170,1249933174,1249933138...1249933140,1249933165,1249933167,1249933145,1249933153...1249933155,1249933159,1249933147,1249933148,1249933166,1249933171...1249933173,1249933175,1249933156,1249933157,1249933164,1249933168,1249933169,1249933144,1249933146,1249933161...1249933163,1249933158,1249933160,1249933176,1249933178,1249933141...1249933143,1249933177,1249933179,1249933302...1249933304,1249933318,1249933316,1249933317,1249933342,1249933343,1249933308,1249933319,1249933320,1249933335,1249933297,1249933310,1249933311,1249934495,1249933278,1249933279,1249933298,1249933313...1249933315,1249933277,1249933285,1249933287,1249933309,1249933306,1249933307,1249933330,1249933332,1249933341,1249933282,1249933283,1249933286,1249933288,1249933294,1249933295,1249933275,1249933276,1249933331,1249933333,1249933334,1249933280,1249933281,1249933284,1249933290,1249933291,1249933274,1249933293,1249933296,1249933305,1249933289,1249933292,1249933312,1249933329,1249933336,1249933337,1249933299...1249933301,1249933328,1249933338...1249933340,1249933321...1249933327,1249933371...1249933375,1249933384...1249933386,1249933388,1249933391,1249933368...1249933370,1249933406,1249933407,1249933381...1249933383,1249933399,1249934596,1249934597,1249933387,1249933389,1249933392,1249933398,1249933400,1249933362...1249933366,1249933394...1249933397,1249933405,1249933376,1249933378,1249933379,1249933390,1249933358...1249933361,1249933377,1249933380,1249933345...1249933348,1249933367,1249933393,1249933401...1249933404,1249933344,1249933349,1249933351...1249933353,1249933350,1249933354...1249933357,1249933467,1249933468,1249933470,1249933473,1249933441...1249933444,1249933446,1249933447,1249933463,1249933465,1249933417,1249933445,1249933448,1249933455,1249933486,1249933451,1249933452,1249933464,1249933466,1249933469,1249933454,1249933456,1249933471,1249933472,1249933433,1249933449,1249933450,1249933453,1249933485,1249933488,1249933416,1249933434,1249933435,1249933487,1249933436,1249933437,1249933457,1249933458,1249933476,1249933474,1249933475,1249933477...1249933480,'
+
+area_x_lsoas_part_b = '1249933408...1249933412,1249933429...1249933432,1249933418,1249933420,1249933424,1249933461,1249933423,1249933427,1249933428,1249933459,1249933460,1249933462,1249933415,1249933438...1249933440,1249933484,1249933419,1249933421,1249933422,1249933425,1249933426,1249933413,1249933414,1249933481...1249933483,1249933528...1249933531,1249933538...1249933540,1249933515...1249933517,1249933519,1249933492,1249933493,1249933526,1249933527,1249933532...1249933537,1249933518,1249933520...1249933522,1249933491,1249933560...1249933562,1249933489,1249933490,1249933494,1249933524,1249933555,1249933557,1249933568...1249933571,1249933548,1249933556,1249933558,1249934598...1249934600,1249933549...1249933552,1249933554,1249933523,1249933525,1249933546,1249933547,1249933553,1249933559,1249933496...1249933498,1249933511,1249933501,1249933503,1249933508...1249933510,1249933502,1249933504...1249933506,1249933513,1249933514,1249933499,1249933500,1249933507,1249933512,1249933495,1249933563,1249933565...1249933567,1249933541...1249933545,1249933564,1249933589,1249933616,1249933617,1249933624,1249933625,1249933618,1249933621...1249933623,1249933635,1249933588,1249933590,1249933591,1249933614,1249933626,1249933574,1249933593,1249933596,1249933619,1249933620,1249933572,1249933573,1249933576,1249933577,1249933594,1249933579,1249933581,1249933582,1249933613,1249933615,1249933578,1249933580,1249933632,1249933634,1249933636,1249933587,1249933592,1249933595,1249933597,1249933633,1249933575,1249933627...1249933630,1249933586,1249933603,1249933605...1249933607,1249933583...1249933585,1249933604,1249933631,1249933608...1249933612,1249933598...1249933602'
+
+
+lsoa_mye <- read_csv(paste0('http://www.nomisweb.co.uk/api/v01/dataset/NM_2010_1.data.csv?geography=',area_x_lsoas_part_a, area_x_lsoas_part_b,'&date=latest&gender=0&c_age=200,201,203,209&measures=20100&select=date_name,geography_name,geography_code,c_age_name,obs_value')) %>% 
+  rename(LSOA11NM = GEOGRAPHY_NAME,
+         LSOA11CD = GEOGRAPHY_CODE,
+         Age_group = C_AGE_NAME,
+         Population = OBS_VALUE,
+         Year = DATE_NAME) %>% 
+  spread(Age_group, Population) %>% 
+  rename(N_015 = `Aged 0 to 15`,
+         N_1664 = `Aged 16 to 64`,
+         N_65 = `Aged 65+`,
+         Total = `All Ages`) %>% 
+  mutate(P_015 = N_015 / Total,
+         P_1664 = N_1664 / Total,
+         P_65 = N_65 / Total) %>% 
+  select(-Total)
+
+LSOA_boundary <- LSOA_boundary %>%  
+  left_join(lsoa_pop_density, by = c('LSOA11CD' = 'Code')) %>% 
+  left_join(lsoa_mye, by = 'LSOA11NM')
+
+# Across West Sussex neighbourhoods, population density ranges from 20 people per square kilometre to more than 13,000 
+
+LSOA_boundary@data %>% 
+  View()
+
+lsoa_json <- geojson_json(LSOA_boundary)
+lsoa_json_simplified <- ms_simplify(lsoa_json, keep = 0.1)
+
+geojson_write(lsoa_json_simplified, file = paste0(github_repo_dir,"/lsoa_density_simple.geojson"))
+
+# Median age ####
 
 median_age <- read_csv(paste0(github_repo_dir, '/median_age.csv')) %>% 
   select(Name, `Mid-2018`) %>% 

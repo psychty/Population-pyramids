@@ -63,8 +63,8 @@ pop_2018.sort(function(a,b) {
 });
 
 // GET THE TOTAL POPULATION SIZE AND CREATE A FUNCTION FOR RETURNING THE PERCENTAGE
-var total_GP_pop = d3.sum(pop_2018, function(d) { return d.Total_GP; });
-var total_MYE_pop = d3.sum(pop_2018, function(d) { return d.Total_MYE; });
+var total_GP_pop = d3.sum(pop_2018, function(d) { return d['Total (GP register)']; });
+var total_MYE_pop = d3.sum(pop_2018, function(d) { return d['Total (MYE)']; });
 
 d3.select('#wsx_gp_2018_string')
   .data(pop_2018)

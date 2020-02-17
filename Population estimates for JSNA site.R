@@ -426,7 +426,7 @@ Component_change__wsx_18 <- WSx_component_change %>%
   mutate(`International out per 1,000 population` = paste0(round(international_out_per_1000, 1), ' (', format(international_out, big.mark = ',', trim = TRUE), ')')) %>% 
   mutate(`Population in 2018` = format(round(population, -2), big.mark = ',', trim = TRUE)) %>% 
   mutate(`Population change since 2017` = paste0(ifelse(pop_change > 0, '+', '-'), format(round(pop_change, -2), big.mark = ',', trim = TRUE))) %>% 
-  select(Area_name, `Births per 1,000 population`,`Deaths per 1,000 population`,`Internal in per 1,000 population`,`Internal out per 1,000 population`,`International in per 1,000 population`,`International out per 1,000 population`, `Population in 2018`,`Population change since 2017`)
+  select(Area_name, population, births, deaths, internal_in, internal_out, international_in, international_out, internal_net, international_net,pop_change, `Births per 1,000 population`,`Deaths per 1,000 population`,`Internal in per 1,000 population`,`Internal out per 1,000 population`,`International in per 1,000 population`,`International out per 1,000 population`, `Population in 2018`,`Population change since 2017`)
 
 rm(five_1, five_2, five_3, Areas_estimates_file, Areas_projections_file, df, NOMIS_mye_df, ONS_MYE_10_year, ONS_MYE_broad, ONS_MYE_quinary, ONS_mye_SYOA, ONS_projection_1941_10_year, ONS_projection_1941_broad, ONS_projection_1941_quinary, ONS_projections_SYOA)
 
@@ -477,7 +477,6 @@ area_x_lsoas_part_a = '1249933190...1249933192,1249933265,1249933186,1249933187,
 
 area_x_lsoas_part_b = '1249933408...1249933412,1249933429...1249933432,1249933418,1249933420,1249933424,1249933461,1249933423,1249933427,1249933428,1249933459,1249933460,1249933462,1249933415,1249933438...1249933440,1249933484,1249933419,1249933421,1249933422,1249933425,1249933426,1249933413,1249933414,1249933481...1249933483,1249933528...1249933531,1249933538...1249933540,1249933515...1249933517,1249933519,1249933492,1249933493,1249933526,1249933527,1249933532...1249933537,1249933518,1249933520...1249933522,1249933491,1249933560...1249933562,1249933489,1249933490,1249933494,1249933524,1249933555,1249933557,1249933568...1249933571,1249933548,1249933556,1249933558,1249934598...1249934600,1249933549...1249933552,1249933554,1249933523,1249933525,1249933546,1249933547,1249933553,1249933559,1249933496...1249933498,1249933511,1249933501,1249933503,1249933508...1249933510,1249933502,1249933504...1249933506,1249933513,1249933514,1249933499,1249933500,1249933507,1249933512,1249933495,1249933563,1249933565...1249933567,1249933541...1249933545,1249933564,1249933589,1249933616,1249933617,1249933624,1249933625,1249933618,1249933621...1249933623,1249933635,1249933588,1249933590,1249933591,1249933614,1249933626,1249933574,1249933593,1249933596,1249933619,1249933620,1249933572,1249933573,1249933576,1249933577,1249933594,1249933579,1249933581,1249933582,1249933613,1249933615,1249933578,1249933580,1249933632,1249933634,1249933636,1249933587,1249933592,1249933595,1249933597,1249933633,1249933575,1249933627...1249933630,1249933586,1249933603,1249933605...1249933607,1249933583...1249933585,1249933604,1249933631,1249933608...1249933612,1249933598...1249933602'
 
-
 lsoa_mye <- read_csv(paste0('http://www.nomisweb.co.uk/api/v01/dataset/NM_2010_1.data.csv?geography=',area_x_lsoas_part_a, area_x_lsoas_part_b,'&date=latest&gender=0&c_age=200,201,203,209&measures=20100&select=date_name,geography_name,geography_code,c_age_name,obs_value')) %>% 
   rename(LSOA11NM = GEOGRAPHY_NAME,
          LSOA11CD = GEOGRAPHY_CODE,
@@ -492,11 +491,11 @@ lsoa_mye <- read_csv(paste0('http://www.nomisweb.co.uk/api/v01/dataset/NM_2010_1
   mutate(P_015 = N_015 / Total,
          P_1664 = N_1664 / Total,
          P_65 = N_65 / Total) %>% 
-  select(-Total)
+  select(-c(Total, LSOA11NM))
 
 LSOA_boundary <- LSOA_boundary %>%  
   left_join(lsoa_pop_density, by = c('LSOA11CD' = 'Code')) %>% 
-  left_join(lsoa_mye, by = 'LSOA11NM')
+  left_join(lsoa_mye, by = 'LSOA11CD')
 
 # Across West Sussex neighbourhoods, population density ranges from 20 people per square kilometre to more than 13,000 
 
@@ -507,6 +506,8 @@ lsoa_json <- geojson_json(LSOA_boundary)
 lsoa_json_simplified <- ms_simplify(lsoa_json, keep = 0.1)
 
 geojson_write(lsoa_json_simplified, file = paste0(github_repo_dir,"/lsoa_density_simple.geojson"))
+
+summary(LSOA_boundary@data$P_65)
 
 # Median age ####
 
@@ -545,7 +546,7 @@ Component_change %>%
   mutate(`International out per 1,000 population` = paste0(round(international_out_per_1000, 1), ' (', format(international_out, big.mark = ',', trim = TRUE), ')')) %>% 
   mutate(`Population in 2018` = format(round(population, -2), big.mark = ',', trim = TRUE)) %>% 
   mutate(`Population change since 2017` = paste0(ifelse(pop_change > 0, '+', '-'), format(round(pop_change, -2), big.mark = ',', trim = TRUE))) %>% 
-  select(Area_name, `Births per 1,000 population`,`Deaths per 1,000 population`,`Internal in per 1,000 population`,`Internal out per 1,000 population`,`International in per 1,000 population`,`International out per 1,000 population`, `Population in 2018`,`Population change since 2017`) %>% 
+  select(Area_name, population, births, deaths, internal_in, internal_out, international_in, international_out, internal_net, international_net, pop_change, `Births per 1,000 population`,`Deaths per 1,000 population`,`Internal in per 1,000 population`,`Internal out per 1,000 population`,`International in per 1,000 population`,`International out per 1,000 population`, `Population in 2018`,`Population change since 2017`) %>% 
   add_row() %>% 
   bind_rows(Component_change__wsx_18) %>% 
   rename(Area = Area_name) %>% 
@@ -555,70 +556,6 @@ Component_change %>%
   toJSON() %>% 
   write_lines(paste0(github_repo_dir,'/area_components_of_change_df.json'))
 
-# Other change- Includes estimated net effect of changes to special populations during the twelve months to mid-year. Special populations comprise prisoner, armed forces and their overseas based dependent populations. It also includes estimated population change not attributed to a specific cause in the twelve months to mid-year and small adjustments necessary to account for issues such as minor LA boundary changes and large postcode areas that overlap LA boundaries.
-
-# Deaths
-# Death occurrences in a small minority of cells show a negative count. These are as a result of previously provisional data being updated in subsequent periods to account for late death registrations and reallocated counts.
-
-# We define an internal migrant as someone who moves home from one geographical area to another. This may be between local authorities, regions or countries within the UK. Unlike with international migration, there is no internationally agreed definition.
-
-# Figure 3 shows a comparatively high likelihood of moving for very young children. Part of this may be simply because their parents are at an age where moving is still common. The addition of children to a family may also lead to a move, however, once children are at school moves are much less common, potentially because of the disruption it would cause the children as well as the parents who may be at an age where they’re settled into their career.
-#
-# It is in early adulthood where most moves occur, with the peak age for moves being 19, the main age at which people leave home for study. There is another smaller peak at age 22; in many cases this will reflect graduates moving for employment, further study, returning to their home address or moving in with a partner.
-#
-# Levels of movement remain comparatively high through those aged in their 20s and 30s but gradually decline with age. This may reflect people becoming more settled in their employment, in an area or in relationships, as well as because they have school-age children.
-#
-# However, from those aged in their late 70s onwards, the proportion of people moving rises slightly. There are many reasons why people of this age may wish to move, including being closer to their family, downsizing, or to access support and care.
-#
-# Figure 4 shows how the latest data have changed in percentage terms compared with the previous 12-month period. The largest increase is at age 68 (an increase of 28% (3,000 moves), due partly because of the large increase in the total number of 68 year-olds in the UK (up 178,000 from the previous 12-month period) as people born in the baby boom following the Second World War reach that age.
-
-# International migration
-# Estimates for international in/out/net are adjusted for visitor switcher, migrant switcher, asylum seeker and refugee flows.
-#
-# Special change
-# Net special change figures include the effect of change in the estimated special populations from one year to the next that are reflected in the general population of England and Wales - those joining and leaving the special population will create a resulting inflow and outflow between the general population.
-
-# There were 242 local authorities with more people moving in than out, of which 43 had a net inflow of over 10 people per 1,000. These were predominantly in the South East, South West and East of England.
-#
-# In the year to mid-2018, there were 140 local authorities with more people moving out than in, of which 30 had a net outflow of more than 10 people per 1,000. Of these 31, there were 19 in London, with the rest predominantly in the south and east.
-#
-# For the year to mid-2018, London as a whole had an overall net outflow of 11.7 per 1,000 people to other areas of England and Wales (Figure 8). As described in the 2017 mid-year estimates release, there is a distinctive age structure to these moves, with children (aged under 18 years) most likely to leave, followed by adults aged over 25 years. However, there was a net inflow among the 18 to 25 years population. Broadly this corresponds to families with children tending to leave London while young adults aged in their 20s tend to move to London.
-
-# Many of the fastest-growing authorities have high net international migration
-#
-# Figure 6 shows a cluster of central London boroughs having the highest levels of net international migration in the year to mid-2018. It also shows a scattering of urban centres across England, Wales and Scotland with high international migration. These tend to have large student populations, such as Coventry, Newcastle-upon-Tyne and Oxford (these areas have high numbers of population aged 18 to 24 years and can be seen in Figure 7). However, the notable pattern from the map is that most of the UK has relatively similar levels of net international migration, as was the case in mid-2017.
-#
-# Internal migration for London continues to be negative
-#
-# There were 242 local authorities with more people moving in than out, of which 43 had a net inflow of over 10 people per 1,000. These were predominantly in the South East, South West and East of England.
-#
-# In the year to mid-2018, there were 140 local authorities with more people moving out than in, of which 30 had a net outflow of more than 10 people per 1,000. Of these 31, there were 19 in London, with the rest predominantly in the south and east.
-#
-# For the year to mid-2018, London as a whole had an overall net outflow of 11.7 per 1,000 people to other areas of England and Wales (Figure 8). As described in the 2017 mid-year estimates release, there is a distinctive age structure to these moves, with children (aged under 18 years) most likely to leave, followed by adults aged over 25 years. However, there was a net inflow among the 18 to 25 years population. Broadly this corresponds to families with children tending to leave London while young adults aged in their 20s tend to move to London.
-
-# Flows are expressed per 1,000 to allow comparison where population sizes differ.
-
-# In every region outside London, there was a net inflow of children and of adults aged 25 to 64 years. This was also true for the 65 years and over age group, except for very small net losses in the West Midlands and the North West.
-
-# Fewest births since 2006
-#
-# The 744,000 births taking place in the year to mid-2018 are the fewest in any year since 2006. In mid-2012 the number of births peaked at 813,000 and have subsequently decreased by 69,000.
-#
-# Fertility analysis is based largely on calendar year data, for example, Birth summary tables in England and Wales: 2017. The latest UK data in Vital statistics in the UK: births, deaths and marriages – 2018 update shows that in the calendar years 2012 to 2017, UK total fertility rates decreased from 1.92 children per woman to 1.74. However, the numbers of births are related to both the number of women of fertile ages as well as their levels of fertility.
-#
-# Highest number of deaths in 18 years
-#
-# There were 20,000 (3%) more deaths in the year to mid-2018 than in the previous year. The 623,000 deaths in the year to mid-2018 were the most since mid-2000. Since mid-2000, the population of the UK has grown by almost 7.5 million and there are 2.4 million more people aged 65 to 84 years and 489,000 more aged 85 years or over. Further analysis of mortality is available:
-
-# Ageing: number of over-65s continues to increase faster than the rest of the population
-#
-# The composition of the UK population is determined by the patterns of births, deaths and migration that have taken place in previous years. The result is that the broad age groups in the UK population are changing at different rates, with the number of those aged 65 years and over growing faster than those under 65 years of age:
-#
-#   the number of children (those aged up to 15 years) increased by 7.8% to 12.6 million between 2008 and 2018
-# the working age population (those aged 16 to 64 years) increased by 3.5% to 41.6 million between 2008 and 2018
-# number of people aged 65 to 84 years increased by 23.0% to 10.6 million between 2008 and 2018
-# the number of people aged 85 years and over increased by 22.8% to 1.6 million between 2008 and 2018
-#
 # The effects of international immigration to the UK since mid-2008 are visible in the pyramid. For most ages, the peaks and troughs present in the pyramid in mid-2008 are visible in the mid-2018 data, shifted by 10 years. However, for the population aged 22 to 39 years in mid-2018, the pyramid is wider than for the same cohort 10 years previously (when they were aged 12 to 29 years). This change has been generated by net international migration adding to the population.
 #
 # The population pyramid in Figure 4 is interactive, allowing you to compare the population structures of different areas and over time. This shows that the age structure of different parts of the UK can vary considerably.

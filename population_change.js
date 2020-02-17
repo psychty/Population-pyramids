@@ -20,8 +20,7 @@ var request = new XMLHttpRequest();
 var json_coc = JSON.parse(request.responseText); // parse the fetched json data into a variable
 
 var wsx_coc = json_coc.filter(function(d){
-      return d.Year === '2018' &
-             d.Area_name === 'West Sussex'})
+      return d.Area === 'West Sussex'})
 
 // Create values
 var nat_change = d3.max(wsx_coc, function (d) {
@@ -44,7 +43,7 @@ var change_switch_key = d3.scaleOrdinal()
 d3.select("#wsx_intro_string_1")
     .data(wsx_coc)
     .text(function(d) {
-        return 'In ' +d.Year + ', ' + d3.format(',.4r')(d.population) + ' people were estimated to be resident in ' + d.Area_name + '. There were ' + d3.format(',.0f')(d.births) + ' births and ' + d3.format(',.0f')(d.deaths) + ' deaths and net internal migration (from/to elsewhere in the UK) was ' + d3.format(',.0f')(d.internal_net) + ' (' + d3.format(',.0f')(d.internal_out) + ' people moving out and ' + d3.format(',.0f')(d.internal_in) + ' people moving in). Net international migration in ' + d.Area_name + ', in ' + d.Year + ', was ' + d3.format(',.0f')(d.international_net) + ' (' + d3.format(',.0f')(d.international_out) + ' people moving out and ' + d3.format(',.0f')(d.international_in) + ' people moving in).'});
+        return 'In 2018 ' + d3.format(',.4r')(d.population) + ' people were estimated to be resident in ' + d.Area + '. There were ' + d3.format(',.0f')(d.births) + ' births and ' + d3.format(',.0f')(d.deaths) + ' deaths and net internal migration (from/to elsewhere in the UK) was ' + d3.format(',.0f')(d.internal_net) + ' (' + d3.format(',.0f')(d.internal_out) + ' people moving out and ' + d3.format(',.0f')(d.internal_in) + ' people moving in). Net international migration in ' + d.Area + ', in 2018 was ' + d3.format(',.0f')(d.international_net) + ' (' + d3.format(',.0f')(d.international_out) + ' people moving out and ' + d3.format(',.0f')(d.international_in) + ' people moving in).'});
 
 d3.select("#wsx_intro_string_2")
     .data(wsx_coc)

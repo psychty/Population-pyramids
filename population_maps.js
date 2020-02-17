@@ -22,17 +22,17 @@ var lsoa = $.ajax({
 })
 
 function get_density_colour(d) {
-    return d > 14000 ? '#800026' :
-           d > 12000  ? '#BD0026' :
-           d > 10000  ? '#E31A1C' :
-           d > 8000  ? '#FC4E2A' :
-           d > 6000  ? '#FD8D3C' :
-           d > 4000   ? '#FEB24C' :
-           d > 2000  ? '#FED976' :
-                      '#fffac7';
+    return d >= 14000 ? '#800026' :
+           d >= 12000 ? '#BD0026' :
+           d >= 10000 ? '#E31A1C' :
+           d >= 8000  ? '#FC4E2A' :
+           d >= 6000  ? '#FD8D3C' :
+           d >= 4000  ? '#FEB24C' :
+           d >= 2000  ? '#FED976' :
+                       '#fffac7';
 }
 
-function LSOAcolour(feature) {
+function LSOA_density_colour(feature) {
   return {
     fillColor: get_density_colour(feature.properties.Pop_per_sq_km),
     // color: 'white',
@@ -41,9 +41,26 @@ function LSOAcolour(feature) {
     fillOpacity: .8};
 }
 
+function get_mye_colour(d) {
+    return d >= .6 ? '#7a0177' :
+           d >= .5 ? '#ae017e' :
+           d >= .4 ? '#dd3497' :
+           d >= .3 ? '#f768a1' :
+           d >= .2 ? '#fa9fb5' :
+           d >= .1 ? '#fcc5c0' :
+                    '#feebe2';
+}
+
+function LSOA_mye_colour(feature) {
+  return {
+    fillColor: get_mye_colour(feature.properties.P_65),
+    weight: 0,
+    fillOpacity: .8};
+}
+
 $.when(lsoa).done(function() {
 
-var map = L.map('map_density');
+var density_map = L.map('map_density');
 
 if(width_map <= 800){
 
@@ -52,7 +69,7 @@ var basemap = L.tileLayer(tileUrl, {
   maxZoom: 17,
   minZoom: 9
 })
-    .addTo(map);
+    .addTo(density_map);
 
   }
 
@@ -63,23 +80,22 @@ var basemap = L.tileLayer(tileUrl, {
     maxZoom: 17,
     minZoom: 10
   })
-      .addTo(map);
-
+      .addTo(density_map);
     }
 
-var lsoa_boundary = L.geoJSON(lsoa.responseJSON,
-      {style: LSOAcolour})
-      .addTo(map)
+var lsoa_density_boundary = L.geoJSON(lsoa.responseJSON,
+      {style: LSOA_density_colour})
+      .addTo(density_map)
       .bindPopup(function (layer) {
     return '<Strong>'+ layer.feature.properties.Name + '</Strong><br><br>Population per square kilometre: ' + d3.format(',.0f')(layer.feature.properties.Pop_per_sq_km) + '<br>Total population: ' + d3.format(',.0f')(layer.feature.properties.Pop_2018) + '<br><br>This LSOA is in the ' + layer.feature.properties.ward_label});
 
-map
-.fitBounds(lsoa_boundary.getBounds());
+density_map
+.fitBounds(lsoa_density_boundary.getBounds());
 
 // Legend
-var legend = L.control({position: 'bottomright'});
+var density_legend = L.control({position: 'bottomright'});
 
-legend.onAdd = function (map) {
+density_legend.onAdd = function (density_map) {
     var div = L.DomUtil.create('div', 'legend'),
         grades = [0, 2000, 4000, 6000, 8000, 10000, 12000, 14000];
 
@@ -89,14 +105,69 @@ legend.onAdd = function (map) {
 // loop through our density intervals and generate a label with a colored square for each interval
   for (var i = 0; i < grades.length; i++) {
     div.innerHTML +=
-    '<i style="background:' + get_density_colour(grades[i] + 1) + '"></i> ' +
-    d3.format(',.0f')(grades[i]) + (grades[i + 1] ? '&ndash;' + d3.format(',.0f')(grades[i + 1]) + '<br>' : '+');
+    '<i style="background:' + get_density_colour(grades[i]) + '"></i> ' +
+    d3.format(',.0f')(grades[i]) + (grades[i + 1] ? '&ndash;' + d3.format(',.0f')(grades[i + 1] -1) + '<br>' : '+');
     }
 
     return div;
 };
 
-legend
-.addTo(map);
+density_legend
+.addTo(density_map);
+
+var mye_map = L.map('map_mye');
+
+if(width_map <= 800){
+
+var basemap = L.tileLayer(tileUrl, {
+  attribution,
+  maxZoom: 17,
+  minZoom: 9
+})
+    .addTo(mye_map);
+  }
+
+if(width_map > 800){
+
+var basemap = L.tileLayer(tileUrl, {
+    attribution,
+    maxZoom: 17,
+    minZoom: 10
+  })
+      .addTo(mye_map);
+    }
+
+var lsoa_mye_boundary = L.geoJSON(lsoa.responseJSON,
+      {style: LSOA_mye_colour})
+      .addTo(mye_map)
+      .bindPopup(function (layer) {
+    return '<Strong>'+ layer.feature.properties.Name + '</Strong><br><br>Population aged 65+: ' + d3.format(',.0f')(layer.feature.properties.N_65) + ' (' + d3.format('.1%')(layer.feature.properties.P_65) + ' of total population)<br><br>Total population: ' + d3.format(',.0f')(layer.feature.properties.Pop_2018) + '<br><br>This LSOA is in the ' + layer.feature.properties.ward_label});
+
+mye_map
+.fitBounds(lsoa_mye_boundary.getBounds());
+
+// Legend
+var mye_legend = L.control({position: 'bottomright'});
+
+mye_legend.onAdd = function (mye_map) {
+var div_mye = L.DomUtil.create('div', 'legend'),
+    grades_mye = [0, .1, .2, .3, .4, .5, .601];
+
+// add title
+  div_mye.innerHTML += "<p><b>Population<br>age 65+</b></p>";
+
+// loop through our intervals and generate a label with a colored square for each interval
+  for (var i = 0; i < grades_mye.length; i++) {
+    div_mye.innerHTML +=
+    '<i style="background:' + get_mye_colour(grades_mye[i]) + '"></i> ' +
+    d3.format('.0%')(grades_mye[i]) + (grades_mye[i + 1] ? '&ndash;' + d3.format('.0%')(grades_mye[i + 1]- .01) + '<br>' : '+');
+    }
+
+
+    return div_mye;
+};
+
+mye_legend
+.addTo(mye_map);
 
 });

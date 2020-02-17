@@ -1,13 +1,21 @@
 /* The map does not have to have a specified width but it does need a height */
 
 #map_density {
-  height: 550px
+ height: 550px
+ }
+
+#map_mye {
+ height: 550px
  }
 
 @media screen and (max-width: 1400px) {
 #map_density {
-  height: 450px
+ height: 450px
  }
+
+#map_mye {
+  height: 550px
+  }
 }
 
 *{
@@ -188,6 +196,7 @@ padding: 10px;
 float: left;
 }
 
+/* Leaflet legend */
 .info {
 padding: 6px 8px;
 font: 12px/14px Arial, Helvetica, sans-serif;

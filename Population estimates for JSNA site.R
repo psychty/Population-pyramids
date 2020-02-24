@@ -786,9 +786,9 @@ WSx_GP %>%
 #          CCG_Name = 'Practice Parent CCG Name',
 #          Coterminous_PCN_CCG = 'Practice CCG and PCN CCG match?')
 
-# download.file('https://files.digital.nhs.uk/D2/1D35F3/gp-reg-pat-prac-lsoa-all-females-males-jul-18.zip', paste0(github_repo_dir, '/gp_lsoa_f.zip'), mode = 'wb')
-# unzip('/Users/richtyler/Documents/Repositories/Population-pyramids/gp_lsoa_f.zip', exdir = github_repo_dir)
-# 
-# GP_lsoa_f_2018 <- read_csv(paste0(github_repo_dir, '/gp-reg-pat-prac-lsoa-female.csv'))
-# GP_lsoa_m_2018 <- read_csv(paste0(github_repo_dir, '/gp-reg-pat-prac-lsoa-male.csv'))
-# GP_lsoa_b_2018 <- read_csv(paste0(github_repo_dir, '/gp-reg-pat-prac-lsoa-all.csv'))
+download.file('https://files.digital.nhs.uk/D2/1D35F3/gp-reg-pat-prac-lsoa-all-females-males-jul-18.zip', paste0(github_repo_dir, '/gp_lsoa_jul_18.zip'), mode = 'wb')
+unzip('/Users/richtyler/Documents/Repositories/Population-pyramids/gp_lsoa_jul_18.zip', exdir = github_repo_dir)
+ 
+GP_lsoa_f_2018 <- read_csv(paste0(github_repo_dir, '/gp-reg-pat-prac-lsoa-female.csv'))
+GP_lsoa_m_2018 <- read_csv(paste0(github_repo_dir, '/gp-reg-pat-prac-lsoa-male.csv'))
+GP_lsoa_b_2018 <- read_csv(paste0(github_repo_dir, '/gp-reg-pat-prac-lsoa-all.csv'))

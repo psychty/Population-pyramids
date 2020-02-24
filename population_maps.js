@@ -70,7 +70,6 @@ var basemap = L.tileLayer(tileUrl, {
   minZoom: 9
 })
     .addTo(density_map);
-
   }
 
 if(width_map > 800){

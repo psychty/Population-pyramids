@@ -78,6 +78,7 @@ d3.select('#wsx_gp_2018_string')
 function tabulate_pop(data, columns) {
 var table = d3.select('#population_18_table')
     .append('table')
+    .attr('class', 'res_reg')
 var thead = table
     .append('thead')
 var tbody = table
@@ -114,7 +115,8 @@ var cells = rows.selectAll('td')
     return table;
     }
 
-var topTable = tabulate_pop(pop_2018, ['Age', 'Total (MYE)', 'Total (GP register)', 'Females (MYE)', 'Females (GP register)', 'Males (MYE)', 'Males (GP register)']);
+var topTable = tabulate_pop(pop_2018, ['Age', 'Total (MYE)', 'Total (GP register)']);
+// var topTable = tabulate_pop(pop_2018, ['Age', 'Total (MYE)', 'Total (GP register)', 'Females (MYE)', 'Females (GP register)', 'Males (MYE)', 'Males (GP register)']);
 
 // components of change districts in wsx
 
@@ -227,15 +229,15 @@ var request = new XMLHttpRequest();
 var json_pyramid = JSON.parse(request.responseText); // parse the fetched json data into a variable
 
 // List of years in the dataset
-var years_pyramid_1 = d3.map(json_pyramid, function (d) {
+var years_pyramid_2 = d3.map(json_pyramid, function (d) {
      return (d.Year)
      })
    .keys()
 
 // We need to create a dropdown button for the user to choose which area to be displayed on the figure.
-d3.select("#selectYearsP1Button")
+d3.select("#selectYearsP2Button")
     .selectAll('myOptions')
-    .data(years_pyramid_1)
+    .data(years_pyramid_2)
     .enter()
     .append('option')
     .text(function (d) {
@@ -243,16 +245,16 @@ d3.select("#selectYearsP1Button")
     .attr("value", function (d) {
         return d; }) // corresponding value returned by the button
 
-var selectedYearP1Option = d3.select('#selectYearsP1Button').property("value")
+var selectedYearP2Option = d3.select('#selectYearsP2Button').property("value")
 
 // List of years in the dataset
-var areas_pyramid_1 = d3.map(json_pyramid, function (d) {
+var areas_pyramid_2 = d3.map(json_pyramid, function (d) {
    return (d.Area_Name)
    })
    .keys()
 
 // We need to create a dropdown button for the user to choose which area to be displayed on the figure.
-d3.select("#selectAreasP1Button")
+d3.select("#selectAreasP2Button")
   .selectAll('myOptions')
   .data(['West Sussex','Adur','Arun','Chichester','Crawley','Horsham','Mid Sussex','Worthing','South East','England'])
   .enter()
@@ -262,10 +264,10 @@ d3.select("#selectAreasP1Button")
   .attr("value", function (d) {
         return d; }) // corresponding value returned by the button
 
-var selectedAreaP1Option = d3.select('#selectAreasP1Button').property("value")
+var selectedAreaP2Option = d3.select('#selectAreasP2Button').property("value")
 
 // append the svg object to the body of the page
-var svg_pyramid_1 = d3.select("#pyramid_1_datavis")
+var svg_pyramid_2 = d3.select("#pyramid_2_datavis")
 .append("svg")
 .attr("width", width + margin.left + margin.right)
 .attr("height", height_pyramid + margin.top + 75)
@@ -273,44 +275,44 @@ var svg_pyramid_1 = d3.select("#pyramid_1_datavis")
 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 var data = json_pyramid.filter(function(d){
-    return d.Year === selectedYearP1Option &
-           d.Area_Name === selectedAreaP1Option})
+    return d.Year === selectedYearP2Option &
+           d.Area_Name === selectedAreaP2Option})
 
 var data_all_years = json_pyramid.filter(function(d){
-   return d.Area_Name === selectedAreaP1Option})
+   return d.Area_Name === selectedAreaP2Option})
 
-function update_p1(data) {
+function update_p2(data) {
 
-var selectedYearP1Option = d3.select('#selectYearsP1Button').property("value")
-var selectedAreaP1Option = d3.select('#selectAreasP1Button').property("value")
+var selectedYearP2Option = d3.select('#selectYearsP2Button').property("value")
+var selectedAreaP2Option = d3.select('#selectAreasP2Button').property("value")
 
 // This selects the text on the figure and removes it imediately
-svg_pyramid_1
+svg_pyramid_2
  .selectAll("text")
  .remove();
 
 // This selects the whole div, changes the r value for all circles to 0 and then removes the svg before new plots are rebuilt.
-svg_pyramid_1
+svg_pyramid_2
  .selectAll("*")
  .transition()
  .duration(750)
  .attr("r", 0)
  .remove();
 
-svg_pyramid_1
+svg_pyramid_2
  .selectAll("*")
  .remove();
 
 var data = json_pyramid.filter(function(d){
-    return d.Year === selectedYearP1Option &
-           d.Area_Name === selectedAreaP1Option})
+    return d.Year === selectedYearP2Option &
+           d.Area_Name === selectedAreaP2Option})
 
 var data_all_years = json_pyramid.filter(function(d){
-    return d.Area_Name === selectedAreaP1Option})
+    return d.Area_Name === selectedAreaP2Option})
 
-var showTooltip_p1_male = function(d, i) {
+var showTooltip_p2_male = function(d, i) {
 
-tooltip_pyramid_1_male
+tooltip_pyramid_2_male
   .html("<h2>" + d.Age_group + '</h2><p class = "side">The estimated number of males aged ' + d.Age_group + ' in ' + d.Year + ' was ' + d3.format(",.0f")(d.Male_Population) + '. This is ' + d3.format('.1%')(d.Male_Percentage) + ' of the population of males in ' + d.Area_Name + '.</p><p class = "side">The total population in ' + d.Area_Name + ' in ' + d.Year + ' is ' + d3.format(',.0f')(totalPopulation) + '</p>')
   .style("opacity", 1)
   .style("top", (event.pageY - 10) + "px")
@@ -318,9 +320,9 @@ tooltip_pyramid_1_male
   .style("visibility", "visible")
         }
 
-var showTooltip_p1_female = function(d, i) {
+var showTooltip_p2_female = function(d, i) {
 
-tooltip_pyramid_1_female
+tooltip_pyramid_2_female
   .html("<h2>" + d.Age_group + '</h2><p class = "side">The estimated number of females aged ' + d.Age_group + ' in ' + d.Year + ' was ' + d3.format(",.0f")(d.Female_Population) + '. This is ' + d3.format('.1%')(d.Female_Percentage) + ' of the population of females in ' + d.Area_Name + '.</p><p class = "side">The total population in ' + d.Area_Name + ' in ' + d.Year + ' is ' + d3.format(',.0f')(totalPopulation) + '</p>')
   .style("opacity", 1)
   .style("top", (event.pageY - 10) + "px")
@@ -328,11 +330,11 @@ tooltip_pyramid_1_female
   .style("visibility", "visible")
         }
 
-var mouseleave_p1 = function(d) {
+var mouseleave_p2 = function(d) {
 
-tooltip_pyramid_1_male
+tooltip_pyramid_2_male
 .style("visibility", "hidden")
-tooltip_pyramid_1_female
+tooltip_pyramid_2_female
 .style("visibility", "hidden")
             }
 
@@ -364,7 +366,7 @@ var x_pyramid_scale_male = d3.scaleLinear()
   .domain([0, maxPopulation])
   .range([male_zero, 0]);
 
-var xAxis_pyramid_1 = svg_pyramid_1
+var xAxis_pyramid_2m = svg_pyramid_2
   .append("g")
   .attr("transform", "translate(0," + height_pyramid + ")")
   .call(d3.axisBottom(x_pyramid_scale_male));
@@ -373,7 +375,7 @@ var x_pyramid_scale_female = d3.scaleLinear()
   .domain([0, maxPopulation])
   .range([female_zero, width]);
 
-var xAxis_pyramid_2 = svg_pyramid_1
+var xAxis_pyramid_2f = svg_pyramid_2
   .append("g")
   .attr("transform", "translate(0," + height_pyramid + ")")
   .call(d3.axisBottom(x_pyramid_scale_female));
@@ -382,7 +384,7 @@ var pyramid_scale_bars = d3.scaleLinear()
   .domain([0,maxPopulation])
   .range([0, pyramid_plot_width]);
 
-var tooltip_pyramid_1_male = d3.select("#pyramid_1_datavis")
+var tooltip_pyramid_2_male = d3.select("#pyramid_2_datavis")
     .append("div")
     .style("opacity", 0)
     .attr("class", "tooltip_pyramid_bars")
@@ -394,7 +396,7 @@ var tooltip_pyramid_1_male = d3.select("#pyramid_1_datavis")
     .style("border-radius", "5px")
     .style("padding", "10px")
 
-var tooltip_pyramid_1_female = d3.select("#pyramid_1_datavis")
+var tooltip_pyramid_2_female = d3.select("#pyramid_2_datavis")
   .append("div")
   .style("opacity", 0)
   .attr("class", "tooltip_pyramid_bars")
@@ -410,47 +412,47 @@ var tooltip_pyramid_1_female = d3.select("#pyramid_1_datavis")
 // ages = data.map(function(d) { return d.Age_group; })
 
 // Y axis scale
-var y_pyramid_1 = d3.scaleBand()
+var y_pyramid_2 = d3.scaleBand()
 .domain(age_levels)
 .range([height_pyramid, 0])
 .padding([0.2]);
 
 yaxis_pos = female_zero - (margin.middle / 2)
 
-var yAxis_top_risks = svg_pyramid_1
+var yAxis_top_risks = svg_pyramid_2
 .append("g")
 .attr("transform", "translate(0" + yaxis_pos + ",0)")
-.call(d3.axisLeft(y_pyramid_1).tickSize(0))
+.call(d3.axisLeft(y_pyramid_2).tickSize(0))
 .style('text-anchor', 'middle')
 .select(".domain").remove()
 
-svg_pyramid_1
+svg_pyramid_2
 .selectAll("myRect")
 .data(data)
 .enter()
 .append("rect")
 .attr("x", female_zero)
-.attr("y", function(d) { return y_pyramid_1(d.Age_group); })
+.attr("y", function(d) { return y_pyramid_2(d.Age_group); })
 .attr("width", function(d) { return pyramid_scale_bars(d.Female_Population); })
-.attr("height", y_pyramid_1.bandwidth())
+.attr("height", y_pyramid_2.bandwidth())
 .attr("fill", "#0099ff")
-.on("mousemove", showTooltip_p1_female)
-.on('mouseout', mouseleave_p1)
+.on("mousemove", showTooltip_p2_female)
+.on('mouseout', mouseleave_p2)
 
-svg_pyramid_1
+svg_pyramid_2
 .selectAll("myRect")
 .data(data)
 .enter()
 .append("rect")
 .attr("x", function(d) { return male_zero - pyramid_scale_bars(d.Male_Population); })
-.attr("y", function(d) { return y_pyramid_1(d.Age_group); })
+.attr("y", function(d) { return y_pyramid_2(d.Age_group); })
 .attr("width", function(d) { return pyramid_scale_bars(d.Male_Population); })
-.attr("height", y_pyramid_1.bandwidth())
+.attr("height", y_pyramid_2.bandwidth())
 .attr("fill", "#ff6600")
-.on("mousemove", showTooltip_p1_male)
-.on('mouseout', mouseleave_p1)
+.on("mousemove", showTooltip_p2_male)
+.on('mouseout', mouseleave_p2)
 
-svg_pyramid_1
+svg_pyramid_2
 .append("text")
 .attr("text-anchor", "start")
 .attr("y", 0)
@@ -470,7 +472,7 @@ var max90_position = Math.max(
     d3.max(max90, function(d) { return d.Female_Population; })
   );
 
-svg_pyramid_1
+svg_pyramid_2
 .append("text")
 .attr("text-anchor", "end")
 .attr("y", 15)
@@ -482,7 +484,7 @@ svg_pyramid_1
 .style('font-weight', 'bold')
 .text('Males');
 
-svg_pyramid_1
+svg_pyramid_2
 .append("text")
 .attr("text-anchor", "start")
 .attr("y", 15)
@@ -494,7 +496,7 @@ svg_pyramid_1
 .style('font-weight', 'bold')
 .text('Females');
 
-svg_pyramid_1
+svg_pyramid_2
 .append("text")
 .attr("text-anchor", "start")
 .attr('class', 'year_pyramid')
@@ -506,9 +508,9 @@ svg_pyramid_1
 .duration(2000)
 .attr('opacity', 1)
 .style('font-weight', 'bold')
-.text(selectedYearP1Option);
+.text(selectedYearP2Option);
 
-svg_pyramid_1
+svg_pyramid_2
 .append("text")
 .attr("text-anchor", "start")
 .attr('class', 'pop_65_class')
@@ -522,7 +524,7 @@ svg_pyramid_1
 .attr('opacity', 1)
 .text(d3.format(',.4r')(total65plusPop));
 
-svg_pyramid_1
+svg_pyramid_2
 .append("text")
 .attr("text-anchor", "start")
 .attr('class', 'pop_65_text')
@@ -534,7 +536,7 @@ svg_pyramid_1
 .attr('opacity', 1)
 .text('This is ' + d3.format('.1%')(total65plusPop / totalPopulation) + ' of the');
 
-svg_pyramid_1
+svg_pyramid_2
 .append("text")
 .attr("text-anchor", "start")
 .attr('class', 'pop_65_text')
@@ -547,28 +549,27 @@ svg_pyramid_1
 .text('total population (' + d3.format(',.4r')(totalPopulation) +').');
 
 // Select the div id total_death_string (this is where you want the result of this to be displayed in the html page)
-d3.select("#selected_p1_title")
+d3.select("#selected_p2_title")
   	.data(data)
   	.text(function(d){
-  	return "Population pyramid; " + selectedAreaP1Option + '; ' + selectedYearP1Option + ';' });
+  	return "Population pyramid; " + selectedAreaP2Option + '; ' + selectedYearP2Option + ';' });
 
 }
 
 // Initialize the plot with the first dataset
-update_p1(data)
+update_p2(data)
 
-  d3.select("#selectAreasP1Button").on("change", function(d) {
-    var selectedYearP1Option = d3.select('#selectYearsP1Button').property("value")
-    var selectedAreaP1Option = d3.select('#selectAreasP1Button').property("value")
-  update_p1(data)
+  d3.select("#selectAreasP2Button").on("change", function(d) {
+    var selectedYearP2Option = d3.select('#selectYearsP2Button').property("value")
+    var selectedAreaP2Option = d3.select('#selectAreasP2Button').property("value")
+  update_p2(data)
   })
 
-  d3.select("#selectYearsP1Button").on("change", function(d) {
-    var selectedYearP1Option = d3.select('#selectYearsP1Button').property("value")
-    var selectedAreaP1Option = d3.select('#selectAreasP1Button').property("value")
-  update_p1(data)
+  d3.select("#selectYearsP2Button").on("change", function(d) {
+    var selectedYearP2Option = d3.select('#selectYearsP2Button').property("value")
+    var selectedAreaP2Option = d3.select('#selectAreasP2Button').property("value")
+  update_p2(data)
   })
-
 
 // Median age data
 var request = new XMLHttpRequest();

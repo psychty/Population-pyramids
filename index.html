@@ -10,7 +10,6 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"> -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet">
-
 </head>
 <body>
 
@@ -68,11 +67,21 @@
 <h3>West Sussex mid 2018 population estimates and GP registrations; by age and sex;</h3>
 <div id = 'population_18_table'></div>
 <p class = 'side_important'>Whilst the total population estimates and population change values in this table are rounded, percentages and ratios are calculated from unrounded values.</p>
-
-<p>The figure below is a population pyramid. This visualises the age and sex structure of a population's estimated resident population and the number of people registered to GP practices operating in the area. You can interact with it and change the area to see differences across West Sussex.</p>
+<p>The figure below is a population pyramid. This visualises the age and sex structure of a population's estimated resident population and the number of people registered to GP practices operating in the area.</p>
 <p>The shape of the pyramid gives an indication of the age structure of a population, if the shape is wider at the top, this is indicative of an ageing population and a pyramid which is wider at the bottom indicates a relatively younger population overall.</p>
-<h3>We could have a population pyramid here that is only 2018, but you can switch between areas and have a reference area of lines. This could be bars = resident and lines = gp registered</h3>
+
+<h3>Population pyramid; West Sussex; 2018; residential estimates and GP registered population by age and sex;</h3>
+<div id = 'pyramid_wsx_datavis'></div>
+
 <p>Which age groups have more registrations than residents?</p>
+
+<p>The second population pyramid below illustrates differences in <b>residential</b> populations in areas accross West Sussex in 2018 (the most recent year of <u>population estimates</u>).</p>
+<h3 id = 'selected_p1_title'></h3>
+<span class="mr-1">Area 1 (bars):</span>
+<select id='selectArea1P1Button'></select>
+<span class="mr-1">Area 2 (lines):</span>
+<select id='selectArea2P1Button'></select>
+<div id = 'pyramid_1_datavis'></div>
 
 <h3>What causes the changes in population?</h3>
 <p>The table below shows the 2018 'components of change' figures for our county and its lower tier local authorities (sometimes called districts and boroughs). A components of change table shows how the population is affected by births, deaths, and migration.</p>
@@ -143,9 +152,9 @@
 <div class = 'row' id = 'migration'>
 <div class = 'content'>
 <h2>Migration</h2>
-<p>The chart below shows the net internal migration flow for West Sussex in the year ending June 2016 by age group. It shows that over the 12 months leading to June 2016, more people settled in the county than left for nearly all age groups apart from 15-19 and 20-24 year olds. These young people may be those who leave the family home for the first time to go to university.</p>
+<!-- <p>The chart below shows the net internal migration flow for West Sussex in the year ending June 2016 by age group. It shows that over the 12 months leading to June 2016, more people settled in the county than left for nearly all age groups apart from 15-19 and 20-24 year olds. These young people may be those who leave the family home for the first time to go to university.</p>
 
-<p>The pattern of net internal migration is varied among the districts of West Sussex (shown below), with Crawley showing the inverse of the pattern seen at county level, with 20-24 year olds being the only age group to have a net increase in population.</p>
+<p>The pattern of net internal migration is varied among the districts of West Sussex (shown below), with Crawley showing the inverse of the pattern seen at county level, with 20-24 year olds being the only age group to have a net increase in population.</p> -->
 
 <!-- # Other change- Includes estimated net effect of changes to special populations during the twelve months to mid-year. Special populations comprise prisoner, armed forces and their overseas based dependent populations. It also includes estimated population change not attributed to a specific cause in the twelve months to mid-year and small adjustments necessary to account for issues such as minor LA boundary changes and large postcode areas that overlap LA boundaries.
 
@@ -204,20 +213,17 @@
 <div class="content" id = 'content_size'>
 
 <h2>Population change in the future</h2>
-<p>Should we have a table of pop 2018, 2028, 2038 (rows = wsx and districts)</p>
 <div id = 'population_18_28_38_table'></div>
 <p class = 'side_important'>Whilst the total population estimates and population change values in this table are rounded, percentages and ratios are calculated from unrounded values.</p>
-
 <p>The latest population estimates for West Sussex indicate the county is home to more than 858,800 residents. Projections based on recent trends indicate that by 2028, the population in West Sussex will increase to more than 925,900 and by 2038, the resident population of West Sussex is expected to reach 976,900.</p>
-
 <p>The figure below is a population pyramid. This visualises the same information that is in the West Sussex population by age and sex table above, but you can interact with it and change the area and change the year of estimate from 2001 to 2041.</p>
 <p>The shape of the pyramid gives an indication of the </p>
-<h3 id = 'selected_p1_title'></h3>
+<h3 id = 'selected_p2_title'></h3>
 <span class="mr-1">Area:</span>
-<select id='selectAreasP1Button'></select>
+<select id='selectAreasP2Button'></select>
 <span class="mr-1">Year:</span>
-<select id='selectYearsP1Button'></select>
-<div id = 'pyramid_1_datavis'></div>
+<select id='selectYearsP2Button'></select>
+<div id = 'pyramid_2_datavis'></div>
 
 <h3>What does this mean for ageing in the future?</h3>
 <p>In 2018, just over one in five residents (22%) in West Sussex was aged 65 years and over. Over the next decade, this is expected to increase to one in four (26%) and by 2038, 30% (almost one in three) residents will be aged 65 and over. This is much higher than national estimates (18% in 2018, 21% in 2028 and 24% in 2038).</p>
@@ -271,9 +277,10 @@
 <script src= "https://unpkg.com/shpjs@latest/dist/shp.js"></script>
 <script src="https://d3js.org/d3-format.v1.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src = 'pyramid_1.js'></script>
 <script src = 'population_change.js'></script>
 <script src = 'population_maps.js'></script>
 <script src = 'oadr.js'></script>
-<!-- <script src = 'test.js'></script> -->
+<script src = 'pyramid_latest_compared.js'></script>
 </body>
 </html>

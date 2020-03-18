@@ -499,15 +499,12 @@ LSOA_boundary <- LSOA_boundary %>%
 
 # Across West Sussex neighbourhoods, population density ranges from 20 people per square kilometre to more than 13,000 
 
-LSOA_boundary@data %>% 
-  View()
-
 lsoa_json <- geojson_json(LSOA_boundary)
 lsoa_json_simplified <- ms_simplify(lsoa_json, keep = 0.1)
 
 geojson_write(lsoa_json_simplified, file = paste0(github_repo_dir,"/lsoa_density_simple.geojson"))
 
-summary(LSOA_boundary@data$P_65)
+# summary(LSOA_boundary@data$P_65)
 
 # Median age ####
 
@@ -749,6 +746,7 @@ WSx_res <- Areas_data_file %>%
   # mutate(Population = round(Population, -2)) %>% 
   spread(Sex, Population)
 
+
 WSx_GP %>% 
   rename(Female_GP = Female_Population,
          Male_GP = Male_Population) %>% 
@@ -759,6 +757,10 @@ WSx_GP %>%
   mutate(Total_MYE = round(Total_MYE, -2),
          Female_MYE = round(Female_MYE, -2),
          Male_MYE = round(Male_MYE, -2)) %>% 
+  mutate(Percentage_male_res = Female_MYE / sum(Female_MYE),
+         Percentage_female_res = Male_MYE / sum(Male_MYE)) %>% 
+  mutate(Percentage_male_reg = Female_GP / sum(Female_GP),
+         Percentage_female_reg = Male_GP / sum(Male_GP)) %>% 
   rename(Age = Age_group,
          `Total (MYE)` = Total_MYE, 
          `Total (GP register)` = Total_GP,

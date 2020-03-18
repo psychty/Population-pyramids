@@ -138,6 +138,14 @@ font-size: .9rem;
 color: #000000;
 }
 
+/* Tables */
+table.res_reg {
+width: 300px;
+border-collapse: collapse;
+font-size: .9rem;
+color: #000000;
+}
+
 tr:nth-of-type(odd) {
 background: #d6ebff;
 }
@@ -207,19 +215,19 @@ border-radius: 5px;
 }
 
 .legend {
-    line-height: 16px;
-    color: #555;
-    padding: 3px;
-    background: white;
-    opacity: .9;
+line-height: 16px;
+color: #555;
+padding: 3px;
+background: white;
+opacity: .9;
 }
 
 .legend i {
-    width: 14px;
-    height: 14px;
-    float: left;
-    margin-right: 8px;
-    opacity: 1;
+width: 14px;
+height: 14px;
+float: left;
+margin-right: 8px;
+opacity: 1;
 }
 
 .text_info {
@@ -235,6 +243,6 @@ fill: #555555;
 }
 
 .footer {
-  float: right;
-  display: inline-block;
+float: right;
+display: inline-block;
 }

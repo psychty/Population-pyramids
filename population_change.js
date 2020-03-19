@@ -228,6 +228,9 @@ var request = new XMLHttpRequest();
 
 var json_pyramid = JSON.parse(request.responseText); // parse the fetched json data into a variable
 
+json_pyramid = json_pyramid.filter(function(d){
+    return +d.Year >= 2018})
+
 // List of years in the dataset
 var years_pyramid_2 = d3.map(json_pyramid, function (d) {
      return (d.Year)

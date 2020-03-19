@@ -35,7 +35,7 @@ var svg_wsx_pyramid = d3.select("#pyramid_wsx_datavis")
 var showTooltip_p1_male = function(d, i) {
 
 tooltip_static_pyramid_male
-  .html("<h2>" + d.Age + '</h2><p class = "side">The estimated number of males aged ' + d.Age + ' living in West Sussex in 2018 was ' + d3.format(",.0f")(d['Males (MYE)']) + '. This is ' + d3.format('.1%')(d.Percentage_male_res) + ' of the population of males in West Sussex.</p><p class = "side">The number of male patients aged ' + d.Age + ' registered to GP practices in West Sussex in July 2018 was ' + d['Males (GP register)'] + '. This is ' +  d3.format('.1%')(d.Percentage_male_reg) + ' of the population of males registered to GP practices in West Sussex.</p>')
+  .html("<h2>" + d.Age + '</h2><p class = "side">The estimated number of males aged ' + d.Age + ' living in West Sussex in 2018 was ' + d3.format(",.0f")(d['Males (MYE)']) + '. This is ' + d3.format('.1%')(d.Percentage_male_res) + ' of the population of males in West Sussex.</p><p class = "side">The number of male patients aged ' + d.Age + ' registered to GP practices in West Sussex in July 2018 was ' + d3.format(',.0f')(d['Males (GP register)']) + '. This is ' +  d3.format('.1%')(d.Percentage_male_reg) + ' of the population of males registered to GP practices in West Sussex.</p>')
   .style("opacity", 1)
   .style("top", (event.pageY - 10) + "px")
   .style("left", (event.pageX + 10) + "px")
@@ -45,7 +45,7 @@ tooltip_static_pyramid_male
 var showTooltip_p1_female = function(d, i) {
 
 tooltip_static_pyramid_female
-  .html("<h2>" + d.Age + '</h2><p class = "side">The estimated number of females aged ' + d.Age + ' living in West Sussex in 2018 was ' + d3.format(",.0f")(d['Females (MYE)']) + '. This is ' + d3.format('.1%')(d.Percentage_female_res) + ' of the population of females in West Sussex.</p><p class = "side">The number of female patients aged ' + d.Age + ' registered to GP practices in West Sussex in July 2018 was ' + d['Females (GP register)'] + '. This is ' +  d3.format('.1%')(d.Percentage_female_reg) + ' of the population of females registered to GP practices in West Sussex.</p>')
+  .html("<h2>" + d.Age + '</h2><p class = "side">The estimated number of females aged ' + d.Age + ' living in West Sussex in 2018 was ' + d3.format(",.0f")(d['Females (MYE)']) + '. This is ' + d3.format('.1%')(d.Percentage_female_res) + ' of the population of females in West Sussex.</p><p class = "side">The number of female patients aged ' + d.Age + ' registered to GP practices in West Sussex in July 2018 was ' + d3.format(',.0f')(d['Females (GP register)']) + '. This is ' +  d3.format('.1%')(d.Percentage_female_reg) + ' of the population of females registered to GP practices in West Sussex.</p>')
   .style("opacity", 1)
   .style("top", (event.pageY - 10) + "px")
   .style("left", (event.pageX + 10) + "px")
@@ -185,7 +185,7 @@ svg_wsx_pyramid
     .attr("d", d3.line()
     .x(function (d) { return male_zero - wsx_pyramid_scale_bars(d['Males (GP register)']) })
     .y(function(d) { return y_pyramid_wsx(d.Age) + 10; }))
-    // .curve(d3.curveStepAfter)
+    // .curve(d3.curveStep))
     .attr("stroke", '#993d00')
     .style("stroke-width", 3)
     .style("fill", "none");

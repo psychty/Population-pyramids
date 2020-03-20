@@ -23,7 +23,7 @@ var areas_pyramid_compare = d3.map(json_pyramid, function (d) {
 // We need to create a dropdown button for the user to choose which area to be displayed on the figure.
 d3.select("#selectArea1P1Button")
     .selectAll('myOptions')
-    .data(areas_pyramid_compare)
+    .data([ 'Adur', 'Arun', 'Chichester', 'Crawley', 'Horsham', 'Mid Sussex', 'Worthing', 'West Sussex', 'South East', 'England'])
     .enter()
     .append('option')
     .text(function (d) {
@@ -35,7 +35,7 @@ var selectedArea1P1Option = d3.select('#selectArea1P1Button').property("value")
 
 d3.select("#selectArea2P1Button")
     .selectAll('myOptions')
-    .data(areas_pyramid_compare)
+    .data(['West Sussex', 'South East', 'England', 'Adur', 'Arun', 'Chichester', 'Crawley', 'Horsham', 'Mid Sussex', 'Worthing'])
     .enter()
     .append('option')
     .text(function (d) {
@@ -94,7 +94,7 @@ var data_lines = json_pyramid.filter(function(d){
 var showTooltip_p1_male = function(d, i) {
 
 tooltip_compare_pyramid_male_bars
-  .html("<h2>" + d.Area_Name + '; ' + d.Age_group + '</h2><p class = "side">The estimated number of males aged ' + d.Age_group + ' living in ' + d.Area_Name + ' in 2018 was ' + d3.format(",.0f")(d.Male_Population) + '. This is ' + d3.format('.1%')(d.Male_Percentage) + ' of the population of males in ' + d.Area_Name + 'in 2018.</p><p class = "side">.</p><p class "side"><b>Note:</b> resident estimates are rounded in the figure although percentages are calculated based on unrounded estimates.</p>')
+  .html("<h2>" + d.Area_Name + '; ' + d.Age_group + '</h2><p class = "side">The estimated number of males aged ' + d.Age_group + ' living in ' + d.Area_Name + ' in 2018 was ' + d3.format(",.0f")(d.Male_Population) + '. This is ' + d3.format('.1%')(d.Male_Percentage) + ' of the population of males in ' + d.Area_Name + 'in 2018.</p><p class = "side"><b>Note:</b> resident estimates are rounded in the figure although percentages are calculated based on unrounded estimates.</p>')
   .style("opacity", 1)
   .style("top", (event.pageY - 10) + "px")
   .style("left", (event.pageX + 10) + "px")
@@ -104,7 +104,7 @@ tooltip_compare_pyramid_male_bars
 var showTooltip_p1_female = function(d, i) {
 
 tooltip_compare_pyramid_female_bars
-  .html("<h2>" + d.Area_Name + '; ' + d.Age_group + '</h2><p class = "side">The estimated number of females aged ' + d.Age_group + ' living in ' + d.Area_Name + ' in 2018 was ' + d3.format(",.0f")(d.Female_Population) + '. This is ' + d3.format('.1%')(d.Female_Percentage) + ' of the population of females in ' + d.Area_Name + 'in 2018.</p><p class = "side">.</p><p class "side"><b>Note:</b> resident estimates are rounded in the figure although percentages are calculated based on unrounded estimates.</p>')
+  .html("<h2>" + d.Area_Name + '; ' + d.Age_group + '</h2><p class = "side">The estimated number of females aged ' + d.Age_group + ' living in ' + d.Area_Name + ' in 2018 was ' + d3.format(",.0f")(d.Female_Population) + '. This is ' + d3.format('.1%')(d.Female_Percentage) + ' of the population of females in ' + d.Area_Name + 'in 2018.</p><p class = "side"><b>Note:</b> resident estimates are rounded in the figure although percentages are calculated based on unrounded estimates.</p>')
   .style("opacity", 1)
   .style("top", (event.pageY - 10) + "px")
   .style("left", (event.pageX + 10) + "px")
@@ -142,6 +142,8 @@ var pyramid_plot_width = (width/2) - (margin.middle/2) ;
 var male_zero = pyramid_plot_width
 var female_zero = width - pyramid_plot_width
 
+var formatPercent = d3.format(".0%")
+
 // the scale goes from 0 to the width of the pyramid plotting region. We will invert this for the left x-axis
 var x_compare_pyramid_scale_male = d3.scaleLinear()
   .domain([0, maxPopulation_compare_pyr])
@@ -150,7 +152,7 @@ var x_compare_pyramid_scale_male = d3.scaleLinear()
 var xAxis_compare_pyramid = svg_pyramid_1
   .append("g")
   .attr("transform", "translate(0," + height_pyramid + ")")
-  .call(d3.axisBottom(x_compare_pyramid_scale_male));
+  .call(d3.axisBottom(x_compare_pyramid_scale_male).tickFormat(formatPercent));
 
 var x_compare_pyramid_scale_female = d3.scaleLinear()
   .domain([0, maxPopulation_compare_pyr])
@@ -159,7 +161,7 @@ var x_compare_pyramid_scale_female = d3.scaleLinear()
 var xAxis_compare_pyramid_2 = svg_pyramid_1
   .append("g")
   .attr("transform", "translate(0," + height_pyramid + ")")
-  .call(d3.axisBottom(x_compare_pyramid_scale_female));
+  .call(d3.axisBottom(x_compare_pyramid_scale_female).tickFormat(formatPercent));
 
 var compare_pyramid_scale_bars = d3.scaleLinear()
   .domain([0,maxPopulation_compare_pyr])
@@ -226,9 +228,7 @@ svg_pyramid_1
     .y(function(d) { return y_pyramid_compare(d.Age_group) + 10; }))
     .attr("stroke", '#005b99')
     .style("stroke-width", 3)
-    .style("fill", "none")
-  .on("mousemove", showTooltip_p1_female)
-  .on('mouseout', mouseleave_p1)
+    .style("fill", "none");
 
 svg_pyramid_1
 .selectAll("myRect")
@@ -241,7 +241,7 @@ svg_pyramid_1
 .attr("height", y_pyramid_compare.bandwidth())
 .attr("fill", "#ff6600")
 .on("mousemove", showTooltip_p1_male)
-.on('mouseout', mouseleave_static_pyr)
+.on('mouseout', mouseleave_p1)
 
 svg_pyramid_1
     .append('g')

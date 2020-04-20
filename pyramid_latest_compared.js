@@ -119,8 +119,8 @@ tooltip_compare_pyramid_female_bars
   d3.max(data_lines, function(d) { return d.Male_Percentage; })
  );
 
-if (maxPopulation_compare_pyr < .1){
- maxPopulation_compare_pyr = .1
+if (maxPopulation_compare_pyr < .09){
+ maxPopulation_compare_pyr = .09
 }
 
 var mouseleave_p1 = function(d) {
